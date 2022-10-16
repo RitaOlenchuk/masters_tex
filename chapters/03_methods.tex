@@ -1,8 +1,13 @@
 \chapter{Methods}
 \section{Semantic segmentation}
-Semantic segmentation is a challenging computer vision problem. The goal of semantic segmentation is to assign each image pixel to a category label corresponding to the underlying object. Recent approaches to semantic segmentation typically rely on convolutional encoder-decoder architectures where the encoder generates low-resolution image features and the decoder upsamples features to segmentation maps with per pixel class scores. 
-\subsection{Fully convolutional networks (FCNs)}
-
+The goal of semantic segmentation is to assign each image pixel to a category label corresponding to the underlying object. Recent approaches to semantic segmentation typically rely on convolutional encoder-decoder architectures where the encoder generates low-resolution image features and the decoder upsamples features to segmentation maps with per pixel class scores. 
+\subsection{Convolutional neural networks (CNNs)}
+One of the challenges in semantic segmentation using standard CNNs is that as the input feature map grows smaller while going through the network, 
+the information about objects of a smaller scale can be lost. DeepLab family introduces atrous convolutions that extract more dense features
+that help to preserve the object's information. Compared to standard convolutions, atruos convolutions have an additional parameter, atrous
+rate, which is stride at which the input is sampled.
+\subsubsection{DeepLabv3+}
+DeepLabv3+~\cite{chen2018encoder} applies several parallel atrous convolutions with different atrous rates.
 
 \subsection{Transformers}
 Transformers~\cite{vaswani2017attention} were originally designed for the neural machine translation problem in NLP to capture long-range dependencies among words in a sentence. Their architecture converts one sequence into another one based on encoder-decoder architecture, but it differs from the previously existing sequence-to-sequence models because it does not imply any Recurrent Networks. 
