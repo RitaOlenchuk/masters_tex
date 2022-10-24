@@ -1,13 +1,35 @@
 \chapter{Methods}
 \section{Semantic segmentation}
-The goal of semantic segmentation is to assign each image pixel to a category label corresponding to the underlying object. Recent approaches to semantic segmentation typically rely on convolutional encoder-decoder architectures where the encoder generates low-resolution image features and the decoder upsamples features to segmentation maps with per pixel class scores. 
-\subsection{Convolutional neural networks (CNNs)}
-One of the challenges in semantic segmentation using standard CNNs is that as the input feature map grows smaller while going through the network, 
-the information about objects of a smaller scale can be lost. DeepLab family introduces atrous convolutions that extract more dense features
-that help to preserve the object's information. Compared to standard convolutions, atruos convolutions have an additional parameter, atrous
-rate, which is stride at which the input is sampled.
+\subsection{DeepLab}
+One of the challenges in semantic segmentation using standard CNNs is that as the input feature map goes through the network
+it gets smaller and the information about objects of a smaller scale can be lost.
+DeepLab family introduces atrous convolutions that extract more dense features
+which help to preserve the object's information. Compared to standard convolutions, atrous convolutions have an additional parameter, atrous
+rate, which is the stride at which the input is sampled (Figure~\ref*{fig:aconv} a).
+The atrous convolution is used in the last few blocks on features that were extracted from the backbone network (e.g. ResNet~\cite{he2016deep}).
+
+\begin{wrapfigure}{r}{0.5\textwidth}
+  \centering
+  \includegraphics[width=0.5\textwidth]{figures/conv_aspp.png} %choose your uploaded image from folder "Images"
+  \caption{(a) Atrous convolution, (b) ASPP augmented with Image Pooling (or Image-level features) ~\cite{chen2017rethinking}} %figure caption
+  \label{fig:aconv} %labelling for internal reference
+\end{wrapfigure}
+One of the latest models in this family, DeepLabv3~\cite{chen2017rethinking}, applies several parallel atrous convolutions with different atrous rates
+(Atrous Spatial Pyramid Pooling, or ASPP, Figure~\ref*{fig:aconv} b) to effectively capture multi-scale information. 
+Image-level features, or image pooling, are also applied to incorporate global context information. Those are calculated by applying global average pooling on the last feature map of the backbone.
+After applying all the operations in parallel, the results of each operation along the channel is concatenated and 1$\times$1 convolution is applied to get the output.
+The addition of atruos convolutions allows the enlargement of the field of view without
+increasing the size of the filtering kernel, therefore the computation time.
 \subsubsection{DeepLabv3+}
-DeepLabv3+~\cite{chen2018encoder} applies several parallel atrous convolutions with different atrous rates.
+The reproduction of shape contours remains difficult, hence latest DeepLabv3+~\cite{chen2018encoder} improves DeepLabv3~\cite{chen2017rethinking} with the encoder-decoder structure (Figure~\ref*{fig:deeplab}).
+As a result DeepLabv3+ contains rich semantic information from the encoder module,
+while the detailed object boundaries are recovered by decoder module and the spatial information is recovered.
+\begin{figure}[h] %h=here; t=top; b=bottom of the page
+  \centering
+  \includegraphics[width=0.9\textwidth]{figures/deeplab_encoderdecoder.png} %choose your uploaded image from folder "Images"
+  \caption{The spatial pyramid pooling module of DeepLabv3 (a), the encoder-decoder structure (b) and DeepLabv3+ adaptation (c) \cite{chen2018encoder}} %figure caption
+  \label{fig:deeplab} %labelling for internal reference
+\end{figure} 
 
 \subsection{Transformers}
 Transformers~\cite{vaswani2017attention} were originally designed for the neural machine translation problem in NLP to capture long-range dependencies among words in a sentence. Their architecture converts one sequence into another one based on encoder-decoder architecture, but it differs from the previously existing sequence-to-sequence models because it does not imply any Recurrent Networks. 

@@ -38,7 +38,7 @@ marked with the same label, which could not be directly used for training.
 \centering
 \begin{tabular}{ l c c c } 
 \hline
-TiGER Label & Share & ID & new ID  \\ 
+TiGER Tissue Label & Share & ID & new ID  \\ 
 \hline
 Invasive tumor & 0.283 & 1 & 1 \\ 
 In-situ tumor & 0.029 & 3 & 1 \\ 
@@ -54,7 +54,7 @@ Rest & 0.026 & 7 & 0\\
 the number of pixels belonging to some label by the number of the pixel in the current image and averaged over all images. }
 \end{table}
 
-While for tissue segmentation the images and their masks could be used as provided in the 
+While for tissue segmentation the images and their masks could be used as directly extracted from the 
 dataset, the data for TILs segmentation required some preprocessing. The TiGER fixed-size bounding box
 annotation for lymphocytes and plasma cells (see Table~\ref*{tab:tils_data}) was adapted for segmentation by transforming each
 bounding box into an annotation of the center pixel with a dilatation of three.
