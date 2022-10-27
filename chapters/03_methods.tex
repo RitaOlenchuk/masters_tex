@@ -44,6 +44,7 @@ while the detailed object boundaries are recovered by the decoder module and the
 \end{figure} 
 
 \subsection{Transformers}
+\label{trans}
 Transformers~\cite{vaswani2017attention} were originally designed for the neural machine translation
 problem in NLP to capture long-range dependencies among words in a sentence.
 Their architecture converts one sequence into another one based on encoder-decoder architecture,
@@ -108,7 +109,7 @@ These feed-forward layers can be described as a separate, identical linear trans
 Naive application of transformers approach into the image domain would require evaluation of relations between each pixel and every other pixel, which is obviously not scalable. The Visual transformer (ViT) \cite{dosovitskiy2020image} is the first work to prove that a pure Transformer can achieve state-of-the-art performance in image classification. ViT converts the input image into a 1D series by cutting it into patches and feeding it to a linear layer. It yields a patch embedding. Position embeddings are added to the image patch embeddings. Adding the learnable position embeddings to each patch allows the model to learn the structure of the image. The rest of the pipeline is a standard encoder and decoder blocks of the transformer.  The decoder learns to map patch-level encodings coming from the encoder to patch-level class scores. Next, these patch-level class scores are upsampled by bilinear interpolation to pixel-level scores.
 
 \subsubsection{SegFormer}
-SegFormer~\cite{xie2021segformer} is a positional-encoding-free transformer based semantic segmentation method. As depicted in Figure \ref{fig:segformer_over}, it consists of two main modules: a hierarchical Transformer encoder to generate high-resolution coarse features and low-resolution fine features; and a lightweight All-MLP decoder to fuse these multi-level features to produce the final semantic segmentation mask. 
+SegFormer~\cite{xie2021segformer} is a positional-encoding-free transformer based semantic segmentation method. As depicted in Figure \ref{fig:segformer_over}, it consists of two main modules: a hierarchical Transformer encoder to generate high-resolution coarse features and low-resolution fine features, and a lightweight All-MLP decoder to fuse these multi-level features and produce the final semantic segmentation mask. 
 
 \begin{figure}[h] %h=here; t=top; b=bottom of the page
     \centering
@@ -117,33 +118,44 @@ SegFormer~\cite{xie2021segformer} is a positional-encoding-free transformer base
     \label{fig:segformer_over} %labelling for internal reference
 \end{figure} 
 
-The $H\times W \times 3$ input image is divided into patches of size $4\times 4$. Those patches are forwarded to the hierarchical Transformer encoder to obtain multi-level features at $\frac{1}{4}, \frac{1}{8}, \frac{1}{16}, \frac{1}{32}$ resolution.
+The $H\times W \times 3$ input image is forwarded to the hierarchical Transformer encoder to obtain multi-level features at $\frac{1}{4}, \frac{1}{8}, \frac{1}{16}, \frac{1}{32}$ resolution after passing through four transformer blocks.
+Each transformer block consists of three modules: Overlap Patch Merging, and classical transformer building blocks: Self-Attention and Feed-forward network.
 
-Overlapped Patch Merging produces features given an image patch and parameters: patch size $K$, stride between two adjacent patches $S$, and padding size $P$.
+The standard transformer receives input as a 1D sequence (such as word embeddings in the previous chapter~\ref*{trans}).
+To handle images, those need to be reshaped into a sequence of flattened 2D patches.
+Overlapped Patch Merging produces features given an image and parameters: patch size $K$, stride between two adjacent patches $S$, and padding size $P$.
+In the original paper~\cite{xie2021segformer} those are set to $K = 7$, $S = 4$ and $P = 3$.
+Therefore the input is split into fixed-size patches, which then go through a linear projection.
+The result is a hierarchical feature map $F_i$ with a
+resolution $\frac{H}{2^{i+1}} \times \frac{W}{2^{i+1}} \times C_i$
+where $i \in \{ 1,2,3,4\}$ and $C_{i+1}$ is larger than $C_i$.
+By performing this with overlapped patches SegFormer aims to preserve the local continuity around those patches.
 
 The main computation bottleneck of each transformer block in encoder is the self-attention layer. In SegFormer, before applying the self-attention according to the formula~\ref{eq:1}, the sequence $K$ is reduced by ratio $R$:
 $$\hat{K} = Reshape(\frac{N}{R}, C\cdot R)(K)$$
 $$K = Linear(C \cdot R, C)(\hat{K})$$
-where $N = H \times W$, $Reshape(\frac{N}{R}, C \cdot R)(K)$ refers to reshaping $K$ to the the shape of $\frac{N}{R} \times (C \cdot R)$, and $Linear(C \cdot R, C)(\hat{K})$ refers to a linear layer taking a $(C \cdot R)$-dimensional tensor as input and generating a $C$-dimensional tensor as output. Therefore, the new $K$ has dimensions $\frac{N}{R} \times C$.  
+where $N = H \times W$, $Reshape(\frac{N}{R}, C \cdot R)(K)$ refers to reshaping $K$ to the the shape of $\frac{N}{R} \times (C \cdot R)$, and $Linear(C \cdot R, C)(\hat{K})$ refers to a linear layer taking a $(C \cdot R)$-dimensional tensor as input and generating a $C$-dimensional tensor as output. Therefore, the new $K$ has dimensions $\frac{N}{R} \times C$. 
+In original experiments, $R$ was set to $[64, 16, 4, 1]$ from stage-1 to stage-4 and
+resulted a reduction of complexity of the self-attention mechanism.
 
 Mix-FFN (feed-forward network) can be formulated as:
 $$x_{out} = MLP(GELU(Conv 3\times 3(MLP(x_{in})))) + x_{in}$$
-where $x_{in}$ is the feature from the self-attention module.
+where $x_{in}$ is the feature from the self-attention module. By using $3 \times 3$ convolution and zero padding in feed-forward network SegFormer aims to leak pixel location information since it is a positional-encoding-free method.
+
 
 The multi-level features are then passed to All-MLP decoder to predict the segmentation mask at $\frac{H}{4}\times \frac{W}{4}\times N_{cls}$ resolution, where $N_{cls}$ is the number of classes.
-
 The proposed All-MLP decoder consists of four main steps. First, multi-level features from
 the encoder go through an MLP layer to unify the channel dimension (\ref{eq:2}). Then, features are up-sampled to $\frac{1}{4}$th of the original image (\ref{eq:3}). Third, a MLP layer is adopted to fuse the concatenated features (\ref{eq:4}). Finally, another MLP layer takes the fused feature to predict the segmentation mask (\ref{eq:5}).
 \begin{equation} \label{eq:2}
-\hat{F_i} = Linear(C_i, C)(F_i), \forall i
+\hat{F_i} = MLP(C_i, C)(F_i), \forall i
 \end{equation}
 \begin{equation} \label{eq:3}
 \hat{F_i} = Upsample(\frac{H}{4}\times \frac{W}{4})(\hat{F_i}), \forall i
 \end{equation}
 \begin{equation} \label{eq:4}
-F = Linear(4C, C)(Concat(\hat{F_i})), \forall i
+F = Linear(4C, C)(MLP(\hat{F_i})), \forall i
 \end{equation}
 \begin{equation} \label{eq:5}
-M = Linear(C, N_{cls})(F)
+M = MLP(C, N_{cls})(F)
 \end{equation}
 where $F_i$ is the the feature and $M$ is the final mask.
