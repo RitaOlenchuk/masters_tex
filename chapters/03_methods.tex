@@ -56,6 +56,8 @@ it does not imply any Recurrent Networks.
   \label{fig:trans_arch}
 \end{wrapfigure}
 The input and output are first embedded into an $n$-dimensional space.
+Since the network and the self-attention are permutation invariant,
+the positional encoding is added to create a representation of the position of the word in the sentence.
 The following modules consist mainly of Multi-Head Attention and Feed Forward layers. 
 Encoder (Figure~\ref{fig:trans_arch}, left) and decoder (Figure~\ref{fig:trans_arch}, right)
 are composed of those modules that can be stacked on top of each other $N\times$ times.
@@ -66,20 +68,28 @@ Scaled Dot-Product Attention (Figure~\ref{fig:trans_attn}, left) can be describe
 \begin{equation} \label{eq:1}
 Attention(Q,K,V) = softmax(\frac{QK^T}{\sqrt{d_k}})V
 \end{equation}
-where $Q$ is a matrix of vector representation of one word in the sequence,
+where, in the context ot translation problem,
+$Q$ is a matrix of vector representation of one word in the sequence,
 $K$ contains vector representations of all the words in the sequence and
 $V$ contains again the vector representations of all the words in the sequence.
 For the multi-head attention modules in the encoder and decoder,
 $V$ consists of the same word sequence as $Q$.
 However, for the attention module that is taken into account,
 the encoder \underline{and} the decoder sequences, $V$ and $Q$ are different.
-The Multi-Head Attention (Figure~\ref{fig:trans_attn}, right) concatenates multiple
-attention outputs linearly to expected dimensions.
-It can be parallelized into multiple mechanisms.
-The attention mechanism is repeated multiple times with linear projections of $Q$, $K$, and $V$.
+$Q$, $K$ and $V$ matrices are used to calculate the attention scores.
+These scores measure how much attention needs
+to be placed on words of the input sequence with respect to a word at a certain position.
+The scaling factor $\sqrt{d_k}$ is applied to avoid large values that after 
+applying softmax would lead to vanishing gradients.
+
+While Scaled Dot-Product Attention focuses on the whole sentence, 
+Multi-Head Attention approaches different segments of the words.
+The word vectors are divided into a fixed number (number of heads) of parts,
+and then within Multi-Head Attention (Figure~\ref{fig:trans_attn}, right) 
+the attention mechanism is repeated multiple times on those separate parts with linear projections of $Q$, $K$, and $V$.
+Since the Feed-Forward layer is expecting just one matrix, a vector for each word,
+the outputs are linearly concatenated.
 This allows the system to learn from different representations of $Q$, $K$, and $V$.
-These linear representations are achieved by multiplying $Q$, $K$,
-and $V$ by weight matrices that are learned during the training.
 
 \begin{figure}[h] %h=here; t=top; b=bottom of the page
     \centering
@@ -88,7 +98,12 @@ and $V$ by weight matrices that are learned during the training.
     \label{fig:trans_attn} %labelling for internal reference
 \end{figure} 
 
-This Feed-Forward layers can be described as a separate, identical linear transformation of each element from the given sequence. They have identical parameters for each position.
+To add element-wise non-linearity transformation of incoming vectors, 
+the transformer includes feed-forward networks.
+It processes the output from one attention layer so that it fits better for the next attention layer.
+Each of the layers in the encoder and decoder contains a fully
+connected feed-forward network, which is applied to each position separately and identically.
+These feed-forward layers can be described as a separate, identical linear transformation of each element from the given sequence.
 
 Naive application of transformers approach into the image domain would require evaluation of relations between each pixel and every other pixel, which is obviously not scalable. The Visual transformer (ViT) \cite{dosovitskiy2020image} is the first work to prove that a pure Transformer can achieve state-of-the-art performance in image classification. ViT converts the input image into a 1D series by cutting it into patches and feeding it to a linear layer. It yields a patch embedding. Position embeddings are added to the image patch embeddings. Adding the learnable position embeddings to each patch allows the model to learn the structure of the image. The rest of the pipeline is a standard encoder and decoder blocks of the transformer.  The decoder learns to map patch-level encodings coming from the encoder to patch-level class scores. Next, these patch-level class scores are upsampled by bilinear interpolation to pixel-level scores.
 
