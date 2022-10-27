@@ -21,41 +21,72 @@ After applying all the operations in parallel, the results of each operation alo
 The addition of atruos convolutions allows the enlargement of the field of view without
 increasing the size of the filtering kernel, therefore the computation time.
 \subsubsection{DeepLabv3+}
-The reproduction of shape contours remains difficult, hence latest DeepLabv3+~\cite{chen2018encoder} improves DeepLabv3~\cite{chen2017rethinking} with the encoder-decoder structure (Figure~\ref*{fig:deeplab}).
-As a result DeepLabv3+ contains rich semantic information from the encoder module,
-while the detailed object boundaries are recovered by decoder module and the spatial information is recovered.
+The reproduction of shape contours during semantic image segmentation remained difficult with DeepLabv3~\cite{chen2018encoder}.
+DeepLabv3 bilinearly upsamples the logits both during training and evaluation (Fig.~\ref*{fig:deeplab} a), hence
+the improvements were made to employ the encoder-decoder structure (Figure~\ref*{fig:deeplab}) to avoid using a naive decoder.
 \begin{figure}[h] %h=here; t=top; b=bottom of the page
   \centering
   \includegraphics[width=0.9\textwidth]{figures/deeplab_encoderdecoder.png} %choose your uploaded image from folder "Images"
   \caption{The spatial pyramid pooling module of DeepLabv3 (a), the encoder-decoder structure (b) and DeepLabv3+ adaptation (c) \cite{chen2018encoder}} %figure caption
   \label{fig:deeplab} %labelling for internal reference
 \end{figure} 
-
-\subsection{Transformers}
-Transformers~\cite{vaswani2017attention} were originally designed for the neural machine translation problem in NLP to capture long-range dependencies among words in a sentence. Their architecture converts one sequence into another one based on encoder-decoder architecture, but it differs from the previously existing sequence-to-sequence models because it does not imply any Recurrent Networks. 
-
-\begin{wrapfigure}{r}{0.45\textwidth}
-  \begin{center}
-    \includegraphics[width=0.4\textwidth]{figures/03_transformer_overview.png}
-    \caption{The Transformer - model architecture. \cite{vaswani2017attention}}
-    \label{fig:trans_arch}
-  \end{center}
-\end{wrapfigure}
-
-Encoder (Figure~\ref{fig:trans_arch}, left) and decoder (Figure~\ref{fig:trans_arch}, right) are composed of modules that can be stacked on top of each other $N\times$ times. The input and output strings are first embedded into an $n$-dimensional space. The following modules consist mainly of Multi-Head Attention and Feed Forward layers. 
-
+DeepLabv3+~\cite{chen2018encoder} adds the decoder module on top of the encoder output, as shown in Fig.~\ref*{fig:deeplabv3plus}.
+In the decoder module, the 1$\times$1 convolution reduces the channels of the
+low-level feature map from the encoder module which is then concatenated with the
+DeepLabv3 feature map and the 3$\times$3 convolution obtains sharper segmentation results.
+As a result, DeepLabv3+ holds rich semantic information from the encoder module,
+while the detailed object boundaries are recovered by the decoder module and the spatial information is retrieved.
 \begin{figure}[h] %h=here; t=top; b=bottom of the page
-    \centering
-    \includegraphics[height=60mm]{figures/03_blocks_overview.png} %choose your uploaded image from folder "Images"
-    \caption{Scaled Dot-Product Attention (left). Multi-Head Attention consists of several attention layers running in parallel (right). \cite{vaswani2017attention}} %figure caption
-    \label{fig:trans_attn} %labelling for internal reference
+  \centering
+  \includegraphics[width=0.9\textwidth]{figures/deeplabv3plus.png} %choose your uploaded image from folder "Images"
+  \caption{DeepLabv3+ architecture. DeepLabv3 as encoder and proposed decoder structure for semantic image segmentation. \cite{chen2018encoder}} %figure caption
+  \label{fig:deeplabv3plus} %labelling for internal reference
 \end{figure} 
 
+\subsection{Transformers}
+Transformers~\cite{vaswani2017attention} were originally designed for the neural machine translation
+problem in NLP to capture long-range dependencies among words in a sentence.
+Their architecture converts one sequence into another one based on encoder-decoder architecture,
+but it differs from the previously existing sequence-to-sequence models because
+it does not imply any Recurrent Networks. 
+\begin{wrapfigure}{r}{0.45\textwidth}
+  \centering
+  \includegraphics[width=0.4\textwidth]{figures/03_transformer_overview.png}
+  \caption{Transformer model architecture. \cite{vaswani2017attention}}
+  \label{fig:trans_arch}
+\end{wrapfigure}
+The input and output are first embedded into an $n$-dimensional space.
+The following modules consist mainly of Multi-Head Attention and Feed Forward layers. 
+Encoder (Figure~\ref{fig:trans_arch}, left) and decoder (Figure~\ref{fig:trans_arch}, right)
+are composed of those modules that can be stacked on top of each other $N\times$ times.
+
+Self-attention is a sequence-to-sequence operation.
+It takes a weighted average over all the input vectors using dot product.
 Scaled Dot-Product Attention (Figure~\ref{fig:trans_attn}, left) can be described by the following equation:
 \begin{equation} \label{eq:1}
 Attention(Q,K,V) = softmax(\frac{QK^T}{\sqrt{d_k}})V
 \end{equation}
-where $Q$ is a matrix of vector representation of one word in the sequence, $K$ contains vector representations of all the words in the sequence and $V$ contains again the vector representations of all the words in the sequence. For the multi-head attention modules in the encoder and decoder, $V$ consists of the same word sequence as $Q$. However, for the attention module that is taken into account, the encoder \underline{and} the decoder sequences, $V$ and $Q$ are different. The Multi-Head Attention (Figure~\ref{fig:trans_attn}, right) concatenates multiple attention outputs linearly to expected dimensions. It can be parallelized into multiple mechanisms. The attention mechanism is repeated multiple times with linear projections of $Q$, $K$, and $V$. This allows the system to learn from different representations of $Q$, $K$, and $V$. These linear representations are achieved by multiplying $Q$, $K$, and $V$ by weight matrices that are learned during the training.
+where $Q$ is a matrix of vector representation of one word in the sequence,
+$K$ contains vector representations of all the words in the sequence and
+$V$ contains again the vector representations of all the words in the sequence.
+For the multi-head attention modules in the encoder and decoder,
+$V$ consists of the same word sequence as $Q$.
+However, for the attention module that is taken into account,
+the encoder \underline{and} the decoder sequences, $V$ and $Q$ are different.
+The Multi-Head Attention (Figure~\ref{fig:trans_attn}, right) concatenates multiple
+attention outputs linearly to expected dimensions.
+It can be parallelized into multiple mechanisms.
+The attention mechanism is repeated multiple times with linear projections of $Q$, $K$, and $V$.
+This allows the system to learn from different representations of $Q$, $K$, and $V$.
+These linear representations are achieved by multiplying $Q$, $K$,
+and $V$ by weight matrices that are learned during the training.
+
+\begin{figure}[h] %h=here; t=top; b=bottom of the page
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/03_blocks_overview.png} %choose your uploaded image from folder "Images"
+    \caption{Scaled Dot-Product Attention (left). Multi-Head Attention consists of several attention layers running in parallel (right). \cite{vaswani2017attention}} %figure caption
+    \label{fig:trans_attn} %labelling for internal reference
+\end{figure} 
 
 This Feed-Forward layers can be described as a separate, identical linear transformation of each element from the given sequence. They have identical parameters for each position.
 
