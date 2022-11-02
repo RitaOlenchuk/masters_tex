@@ -80,7 +80,7 @@ bounding boxes that were assigned for lymphocytes and plasma cells, further name
 \section{Survival Analysis}
 TiGER challenge aims to assess the prognostic significance of computer-generated TILs scores
 for predicting survival applying Cox proportional hazards model. The survival analysis
-is done internally, hence no corresponding data was released. The survival analysis
+is done using a large independent test dataset that includes cases from both clinical routine and from a phase 3 clinical trial, which is not directly accessible by participants. The survival analysis
 within this thesis is done exclusively on publicly available TCGA-BRCA data. Where death
 (\texttt{vital\_status} = 1) is considered as an event, and the time until the event or censoring is
 taken either from \texttt{days\_to\_death} (number of days to death from first diagnosis) or \texttt{days\_to\_followup}
