@@ -153,10 +153,36 @@ the encoder go through an MLP layer to unify the channel dimension (\ref{eq:2}).
 \hat{F_i} = Upsample(\frac{H}{4}\times \frac{W}{4})(\hat{F_i}), \forall i
 \end{equation}
 \begin{equation} \label{eq:4}
-F = Linear(4C, C)(MLP(\hat{F_i})), \forall i
+F = MLP(4C, C)(MLP(\hat{F_i})), \forall i
 \end{equation}
 \begin{equation} \label{eq:5}
 M = MLP(C, N_{cls})(F)
 \end{equation}
 where $F_i$ is the the feature and $M$ is the final mask.
 
+\section{Survival Analysis}
+The overall survival (OS) is the primary endpoint for prognostic analysis in this thesis,
+hence time to death is the event of interest. 
+Survival data are generally described and modelled in terms of two related probabilities, namely survival and hazard.~\cite{clark2003survival}
+The survival probability $S(t)$ is the probability that an individual survives from the time origin (in our case diagnosis of breast cancer) to a specified future time $t$.
+It can be denoted as: $$S(t) = Pr(T>t) = 1-F(t) = \int_t^\infty f(x) dx $$
+where $T$ is a random variable that idicates the time until the event of interest (death). $F(t)$ and $f(t)$ are the cumulative distribution function
+and probability density function of $T$. 
+The hazard is the probability that an individual who is under observation at a time $t$ has an event at that time:
+$$h(t) = lim_{\delta t \rightarrow 0}\frac{Pr(t \leq T \leq t + \delta t | T > t)}{\delta t} = \frac{f(t)}{1-F(t)}$$
+In contrast to the survivor function, which focuses on not having an event, the hazard function focuses on the event occurring. 
+The cumulative hazard $H(t)$, defined as the integral of the hazard,
+can be calculated using the survival probability with help of the Laplace transform:
+$$ H(t) = \int_0^t h(x) dx = \int_0^t \frac{f(x)}{1-F(x)} dx = - ln(1 - F(t)) = - ln(S(t)) $$
+The cumulative hazard can be interpreted as the number of events that would be expected for each individual by time $t$ if the event was a repeatable process.~\cite{clark2003survival}
+
+\subsection{Kaplan–Meier method}
+The survival probability can be estimated nonparametrically from observed survival times,
+both censored and uncensored, using the Kaplan–Meier method.
+The probability of being alive at time $t_i$, is calculated as:
+$$S(t_i) = S(t_{i-1}) (1-\frac{d_i}{n_i})$$
+where $n_i$ is the number of patients alive before $t_i$ and $d_i$ is the number of events at $t_i$. $t_0=0$ and $S(0)=1$.
+The estimated probability is a step function that changes value only at the time of an event.
+
+\subsection{Cox proportional hazard models}
+$H(t)$ helps to estimate $h(t)$ and assess model validity.
