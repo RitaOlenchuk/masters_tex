@@ -164,25 +164,50 @@ where $F_i$ is the the feature and $M$ is the final mask.
 The overall survival (OS) is the primary endpoint for prognostic analysis in this thesis,
 hence time to death is the event of interest. 
 Survival data are generally described and modelled in terms of two related probabilities, namely survival and hazard.~\cite{clark2003survival}
+This thesis focuses on non-parametric models to avoid making any additional assumptions about the distributions.
 The survival probability $S(t)$ is the probability that an individual survives from the time origin (in our case diagnosis of breast cancer) to a specified future time $t$.
-It can be denoted as: $$S(t) = Pr(T>t) = 1-F(t) = \int_t^\infty f(x) dx $$
+It can be denoted as: $$S(t) = Pr(T>t) = 1-F(t) = \int_t^\infty f(x) dx = \textrm{ Probability of surviving past time } t $$
 where $T$ is a random variable that idicates the time until the event of interest (death). $F(t)$ and $f(t)$ are the cumulative distribution function
 and probability density function of $T$. 
 The hazard is the probability that an individual who is under observation at a time $t$ has an event at that time:
 $$h(t) = lim_{\delta t \rightarrow 0}\frac{Pr(t \leq T \leq t + \delta t | T > t)}{\delta t} = \frac{f(t)}{1-F(t)}$$
 In contrast to the survivor function, which focuses on not having an event, the hazard function focuses on the event occurring. 
+So if hazard probability describes the intensity of death~\cite{STAT_425} at the
+time $t$ given that the individual has already survived past time $t$, then
+the cumulative hazard is cumulative amount of hazard up to time $t$.
 The cumulative hazard $H(t)$, defined as the integral of the hazard,
 can be calculated using the survival probability with help of the Laplace transform:
-$$ H(t) = \int_0^t h(x) dx = \int_0^t \frac{f(x)}{1-F(x)} dx = - ln(1 - F(t)) = - ln(S(t)) $$
+$$ H(t) = \int_0^t h(x) dx = \int_0^t \frac{f(x)}{1-F(x)} dx = - ln(1 - F(t)) = - \log (S(t)) $$
 The cumulative hazard can be interpreted as the number of events that would be expected for each individual by time $t$ if the event was a repeatable process.~\cite{clark2003survival}
 
-\subsection{Kaplan–Meier method}
+\subsection{Kaplan–Meier estimator}
 The survival probability can be estimated nonparametrically from observed survival times,
 both censored and uncensored, using the Kaplan–Meier method.
-The probability of being alive at time $t_i$, is calculated as:
-$$S(t_i) = S(t_{i-1}) (1-\frac{d_i}{n_i})$$
-where $n_i$ is the number of patients alive before $t_i$ and $d_i$ is the number of events at $t_i$. $t_0=0$ and $S(0)=1$.
+The estimated probability of surviving past time $t$, is calculated as:
+$$\hat{S}(t) = \prod_{i; t_i \leq t} (1-\frac{d_i}{n_i})$$
+where $n_i$ is the number of patients alive before $t_i$ (and not censored) and $d_i$ is the number of observed events at $t_i$. $t_0=0$ and $S(0)=1$.
 The estimated probability is a step function that changes value only at the time of an event.
+To characterize the survival in a homogeneous group often the empirical survival function is visualized with Kaplan–Meier plot.
 
-\subsection{Cox proportional hazard models}
-$H(t)$ helps to estimate $h(t)$ and assess model validity.
+\subsection{Cox model}
+Additionally to the event time, there is often access to other covariates
+of individuals (e.g. age, gender, BMI, etc.). Often the goal is to understand how the covariates affect
+the survival function of the event.~\cite{STAT_425}
+Let $C$ denote those covariates. The conditional survival function can be formulated
+as followed:
+$$S(t|c) = Pr(T>t|C=c) = \textrm{ Probability of surviving past time } t \textrm{ given } c$$
+Hence, the conditional hazard function and conditional cumulative hazard as:
+$$ H(t|c) = - \log (S(t|c)) \textrm{, hence } h(t|c) = -\frac{\partial \log S(t|c)}{\partial t}$$
+The Cox proportional hazard model models the hazard function $h(t|C=c)$ as:
+$$h(t|C=c) = h_0(t) \exp(c^T \beta)$$
+where $\beta$ is the vector of coefficients for each of the covariates and $h_0(t)$ is the baseline hazard
+function. The Cox model assumes that the covariates have a linear multiplication effect on the
+hazard function and the effect stays the same over time. 
+$$\frac{h(t|c_i)}{h(t|c_j)} = \frac{h_0(t) \exp(c_i^T \beta)}{h_0(t) \exp(c_j^T \beta)} = \frac{\exp(c_i^T \beta)}{\exp(c_j^T \beta)} =  \exp((c_i - c_j)^T \beta)$$
+The ratio of the hazard function between two individuals with different covariates $c_i$ and
+$c_j$ is a constant over time. Hence the name, proportional hazard model. The conditional hazard function is:
+$$H(t|c) = \exp(c^T \beta) \int_0^t h_0(s) ds = \exp(c^T \beta)H_0(t)$$
+It yields a conditional survival function:
+$$S(t|c) = \exp (-H(t|c)) = \exp(-\exp(c^T \beta)H_0(t)) = \exp(-H_0(t))^{\exp(c^T \beta)} = S_0(t)^{\exp(c^T \beta)}$$
+Estimation of the parameter $\beta$ is often done by maximizing the partial likelihood function $\hat{\beta}_n = argmax_\beta \hat{L}_n(\beta) $, where:
+$$ \hat{L}(\beta) = \prod_{i=1}^n \frac{h(T_i|C_i)}{\sum_{j: T_j \geq T_i} h(T_j|C_j)} = \prod_{i=1}^n \frac{\exp(C_i^T \beta)}{\sum_{j: T_j \geq T_i} \exp(C_j^T \beta)}$$
