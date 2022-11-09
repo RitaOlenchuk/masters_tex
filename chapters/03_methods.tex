@@ -201,7 +201,7 @@ $$ H(t|c) = - \log (S(t|c)) \textrm{, hence } h(t|c) = -\frac{\partial \log S(t|
 The Cox proportional hazard model models the hazard function $h(t|C=c)$ as:
 $$h(t|C=c) = h_0(t) \exp(c^T \beta)$$
 where $\beta$ is the vector of coefficients for each of the covariates and $h_0(t)$ is the baseline hazard
-function. The Cox model assumes that the covariates have a linear multiplication effect on the
+function. The baseline hazard is the probability of experiencing the event of interest when all other covariates are equal zero ($\exp(0) = 1$). The Cox model assumes that the covariates have a linear multiplication effect on the
 hazard function and the effect stays the same over time. 
 $$\frac{h(t|c_i)}{h(t|c_j)} = \frac{h_0(t) \exp(c_i^T \beta)}{h_0(t) \exp(c_j^T \beta)} = \frac{\exp(c_i^T \beta)}{\exp(c_j^T \beta)} =  \exp((c_i - c_j)^T \beta)$$
 The ratio of the hazard function between two individuals with different covariates $c_i$ and
@@ -211,3 +211,14 @@ It yields a conditional survival function:
 $$S(t|c) = \exp (-H(t|c)) = \exp(-\exp(c^T \beta)H_0(t)) = \exp(-H_0(t))^{\exp(c^T \beta)} = S_0(t)^{\exp(c^T \beta)}$$
 Estimation of the parameter $\beta$ is often done by maximizing the partial likelihood function $\hat{\beta}_n = argmax_\beta \hat{L}_n(\beta) $, where:
 $$ \hat{L}(\beta) = \prod_{i=1}^n \frac{h(T_i|C_i)}{\sum_{j: T_j \geq T_i} h(T_j|C_j)} = \prod_{i=1}^n \frac{\exp(C_i^T \beta)}{\sum_{j: T_j \geq T_i} \exp(C_j^T \beta)}$$
+A positive sign of $\beta_i$ indicates higher risk of an event, hence the probability for the event for that particular subject is higher. Likewise for a negative signed $\beta_i$, lower risk and lower probability. The actual value of $\beta_i$ plays a role as well. The values less than one will reduce the hazard and values greater than one, increase it.
+
+A model's accuracy can be quantified on the basis of concordance.~\cite{therneau20201} 
+It is a measure of rank correlation between predicted risk scores and observed time points. 
+It is defined as the ratio of correctly ordered (concordant) patient pairs to all concordant and discordant patient pairs.
+Let $i, j$ be a patient pair. If a model predicts a higher risk score for the first patient ($\eta_i > \eta_j$), for it to be a concordant pair first patient should have a shorter survival time in comparison with the other patient ($ T_i < T_j$) and similarly if lower risk then longer survival time, $\eta_i < \eta_j \And T_i > T_j$.
+If both patients are censored the pair is discarded.
+If only one patient is censored, the pair is not discarded only if the other patient experienced the event prior to the censoring time. By construction, concordance must be between $0$ and $1$, with $1$
+representing perfect agreement between model and
+observation and $0.5$ representing random guesses.
+For a Cox model the predicted survival is longer if the risk score is lower.
