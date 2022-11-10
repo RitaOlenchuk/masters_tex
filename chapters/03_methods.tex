@@ -163,18 +163,18 @@ where $F_i$ is the the feature and $M$ is the final mask.
 \section{Survival Analysis}
 The overall survival (OS) is the primary endpoint for prognostic analysis in this thesis,
 hence time to death is the event of interest. 
-Survival data are generally described and modelled in terms of two related probabilities, namely survival and hazard.~\cite{clark2003survival}
+Survival data are generally described and modeled in terms of two related probabilities, namely survival and hazard.~\cite{clark2003survival}
 This thesis focuses on non-parametric models to avoid making any additional assumptions about the distributions.
 The survival probability $S(t)$ is the probability that an individual survives from the time origin (in our case diagnosis of breast cancer) to a specified future time $t$.
 It can be denoted as: $$S(t) = Pr(T>t) = 1-F(t) = \int_t^\infty f(x) dx = \textrm{ Probability of surviving past time } t $$
-where $T$ is a random variable that idicates the time until the event of interest (death). $F(t)$ and $f(t)$ are the cumulative distribution function
+where $T$ is a random variable that indicates the time until the event of interest (death). $F(t)$ and $f(t)$ are the cumulative distribution function
 and probability density function of $T$. 
 The hazard is the probability that an individual who is under observation at a time $t$ has an event at that time:
 $$h(t) = lim_{\delta t \rightarrow 0}\frac{Pr(t \leq T \leq t + \delta t | T > t)}{\delta t} = \frac{f(t)}{1-F(t)}$$
 In contrast to the survivor function, which focuses on not having an event, the hazard function focuses on the event occurring. 
 So if hazard probability describes the intensity of death~\cite{STAT_425} at the
 time $t$ given that the individual has already survived past time $t$, then
-the cumulative hazard is cumulative amount of hazard up to time $t$.
+the cumulative hazard is the cumulative amount of hazard up to time $t$.
 The cumulative hazard $H(t)$, defined as the integral of the hazard,
 can be calculated using the survival probability with help of the Laplace transform:
 $$ H(t) = \int_0^t h(x) dx = \int_0^t \frac{f(x)}{1-F(x)} dx = - ln(1 - F(t)) = - \log (S(t)) $$
@@ -183,7 +183,7 @@ The cumulative hazard can be interpreted as the number of events that would be e
 \subsection{Kaplan–Meier estimator}
 The survival probability can be estimated nonparametrically from observed survival times,
 both censored and uncensored, using the Kaplan–Meier method.
-The estimated probability of surviving past time $t$, is calculated as:
+The estimated probability of surviving past time $t$ is calculated as:
 $$\hat{S}(t) = \prod_{i; t_i \leq t} (1-\frac{d_i}{n_i})$$
 where $n_i$ is the number of patients alive before $t_i$ (and not censored) and $d_i$ is the number of observed events at $t_i$. $t_0=0$ and $S(0)=1$.
 The estimated probability is a step function that changes value only at the time of an event.
@@ -196,29 +196,35 @@ the survival function of the event.~\cite{STAT_425}
 Let $C$ denote those covariates. The conditional survival function can be formulated
 as followed:
 $$S(t|c) = Pr(T>t|C=c) = \textrm{ Probability of surviving past time } t \textrm{ given } c$$
-Hence, the conditional hazard function and conditional cumulative hazard as:
+Hence, the conditional hazard function and conditional cumulative hazard are:
 $$ H(t|c) = - \log (S(t|c)) \textrm{, hence } h(t|c) = -\frac{\partial \log S(t|c)}{\partial t}$$
 The Cox proportional hazard model models the hazard function $h(t|C=c)$ as:
 $$h(t|C=c) = h_0(t) \exp(c^T \beta)$$
 where $\beta$ is the vector of coefficients for each of the covariates and $h_0(t)$ is the baseline hazard
-function. The baseline hazard is the probability of experiencing the event of interest when all other covariates are equal zero ($\exp(0) = 1$). The Cox model assumes that the covariates have a linear multiplication effect on the
+function. The hazard ratio, or \textbf{\textit{risk}}, is the exponential of $\beta_i$ value $\eta_i = \exp(\beta _{i})$ and the baseline hazard describes how the risk of event per time unit changes over time at baseline levels of covariates. The Cox model assumes that the covariates have a linear multiplication effect on the
 hazard function and the effect stays the same over time. 
 $$\frac{h(t|c_i)}{h(t|c_j)} = \frac{h_0(t) \exp(c_i^T \beta)}{h_0(t) \exp(c_j^T \beta)} = \frac{\exp(c_i^T \beta)}{\exp(c_j^T \beta)} =  \exp((c_i - c_j)^T \beta)$$
 The ratio of the hazard function between two individuals with different covariates $c_i$ and
-$c_j$ is a constant over time. Hence the name, proportional hazard model. The conditional hazard function is:
+$c_j$ is a constant over time since $h_{0}(t)$  was canceled out. Hence the name, proportional hazard model. The conditional hazard function is:
 $$H(t|c) = \exp(c^T \beta) \int_0^t h_0(s) ds = \exp(c^T \beta)H_0(t)$$
 It yields a conditional survival function:
 $$S(t|c) = \exp (-H(t|c)) = \exp(-\exp(c^T \beta)H_0(t)) = \exp(-H_0(t))^{\exp(c^T \beta)} = S_0(t)^{\exp(c^T \beta)}$$
 Estimation of the parameter $\beta$ is often done by maximizing the partial likelihood function $\hat{\beta}_n = argmax_\beta \hat{L}_n(\beta) $, where:
 $$ \hat{L}(\beta) = \prod_{i=1}^n \frac{h(T_i|C_i)}{\sum_{j: T_j \geq T_i} h(T_j|C_j)} = \prod_{i=1}^n \frac{\exp(C_i^T \beta)}{\sum_{j: T_j \geq T_i} \exp(C_j^T \beta)}$$
-A positive sign of $\beta_i$ indicates higher risk of an event, hence the probability for the event for that particular subject is higher. Likewise for a negative signed $\beta_i$, lower risk and lower probability. The actual value of $\beta_i$ plays a role as well. The values less than one will reduce the hazard and values greater than one, increase it.
+A positive sign of $\beta_i$ indicates a higher risk of an event, hence the probability for the event for that particular subject is higher. Likewise for a negative signed $\beta_i$, lower risk, and lower probability. The actual value of $\beta_i$ plays a role as well. Values less than one will reduce the hazard and values greater than one, increase it.
 
 A model's accuracy can be quantified on the basis of concordance.~\cite{therneau20201} 
-It is a measure of rank correlation between predicted risk scores and observed time points. 
+It is a measure of the rank correlation between predicted risks and observed time points. 
 It is defined as the ratio of correctly ordered (concordant) patient pairs to all concordant and discordant patient pairs.
-Let $i, j$ be a patient pair. If a model predicts a higher risk score for the first patient ($\eta_i > \eta_j$), for it to be a concordant pair first patient should have a shorter survival time in comparison with the other patient ($ T_i < T_j$) and similarly if lower risk then longer survival time, $\eta_i < \eta_j \And T_i > T_j$.
+Let $i, j$ be a patient pair. If a model predicts a higher risk for the first patient ($\eta_i > \eta_j$), for it to be a concordant pair first patient should have a shorter survival time in comparison with the other patient ($ T_i < T_j$) and similarly if lower risk then longer survival time, $\eta_i < \eta_j \And T_i > T_j$.
 If both patients are censored the pair is discarded.
 If only one patient is censored, the pair is not discarded only if the other patient experienced the event prior to the censoring time. By construction, concordance must be between $0$ and $1$, with $1$
-representing perfect agreement between model and
+representing the perfect agreement between model and
 observation and $0.5$ representing random guesses.
-For a Cox model the predicted survival is longer if the risk score is lower.
+
+Additionally, to estimate the goodness-of-fit the p-value is determined. The Wald test is typically used to evaluate the significance of a variable in the model estimated with the maximum likelihood function. The null hypothesis is that the model does not fit the data well. The Wald statistic tests, whether $\beta_i$ coefficient is statistically significantly different from $0$ and is defined as:
+$$ W=\frac{(\hat{\beta}_n-\beta_0)^{2}}{var(\hat{\beta}_n)}$$
+If the true coefficient was $\beta_0$, then the sampling distribution of
+the Wald test statistic should be approximate $\mathcal{N} (0, 1)$. 
+The p-value gives the probability of observing a test statistic as extreme as the one observed if the sampling distribution was $\mathcal{N} (0, 1)$. If the p-value is small, the observed test statistic is very
+unlikely under the null hypothesis. And the significance level of $0.05$ indicates that there is a $5\%$ risk of being wrong by concluding that the model fits the data well when it doesn't.
