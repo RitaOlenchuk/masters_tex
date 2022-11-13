@@ -3,12 +3,11 @@
 The data comes from publicly released Tumor InfiltratinG lymphocytes in
 breast cancER (TiGER) challenge dataset containing
 digital pathology images of Her2 positive (Her2+) and Triple Negative (TNBC) breast
-cancer whole-slide images (WSI), regions of interest (ROIs) and manual annotations. More specifically, WSIROIS dataset
+cancer whole-slide images (WSIs), regions of interest (ROIs), and manual annotations. More specifically, the WSIROIS dataset
 was used for model training, validation, and testing (see Table~\ref*{tab:segm_data}).
 TiGER data, both at WSI and ROI level, was released at a spacing (pixel size) of approximately 0.5 \textmu m/px,
 for more information please refer to the original challenge
 website\footnote{\url{https://tiger.grand-challenge.org/Data/}}.
-
 \begin{table}[h!]
 \centering
 \begin{tabular}{ l c c c c c c } 
@@ -28,10 +27,9 @@ JB & 18 & 54 & 1 465 & 18 & 54 & 1 465\\
 Radboud University Medical Center (RUMC) and Jules Bordet Institute (JB). Tissue slides and ROIs refer to the segmentation
 images and annotations whereas TILs prefix specifies the data for TILs detection provided by the challenge. }
 \end{table}
-
 The TiGER tissue annotations include eight
 labels that were reduced to three (see Table~\ref*{tab:label_data}).
-The training masks were generated using available XML-files. In the provided mask
+The training masks were generated using available XML files. In the provided mask
 images, in certain cases, regions not included in ROIs and non-annotated regions in ROIs where
 marked with the same label, which could not be directly used for training.
 \begin{table}[h!]
@@ -57,7 +55,7 @@ the number of pixels belonging to some label by the number of the pixel in the c
 While for tissue segmentation the images and their masks could be used as directly extracted from the 
 dataset, the data for TILs segmentation required some preprocessing. The TiGER fixed-size bounding box
 annotation for lymphocytes and plasma cells (see Table~\ref*{tab:tils_data}) was adapted for segmentation by transforming each
-bounding box into an annotation of the center pixel with a dilatation of three.
+bounding box into an annotation of the center pixel with dilatation of three.
 \begin{table}[h!]
 \centering
 \begin{tabular}{ l c c c c c c } 
@@ -79,11 +77,11 @@ bounding boxes that were assigned for lymphocytes and plasma cells, further name
 
 \section{Survival Analysis}
 TiGER challenge aims to assess the prognostic significance of computer-generated TILs scores
-for predicting survival applying Cox proportional hazards model. The survival analysis
+for predicting survival by applying the Cox proportional hazards model. The survival analysis
 is done using a large independent test dataset that includes cases from both clinical routine and from a phase 3 clinical trial, which is not directly accessible by participants. The survival analysis
 within this thesis is done exclusively on publicly available TCGA-BRCA data. Where death
 (\texttt{vital\_status} = 1) is considered as an event, and the time until the event or censoring is
-taken either from \texttt{days\_to\_death} (number of days to death from first diagnosis) or \texttt{days\_to\_followup}
+taken either from \texttt{days\_to\_death} (number of days to death from the first diagnosis) or \texttt{days\_to\_followup}
 (number of days to last follow-up from first diagnosis). 
 \begin{table}[h!]
 \centering

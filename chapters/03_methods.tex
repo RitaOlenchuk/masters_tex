@@ -18,8 +18,8 @@ One of the latest models in this family, DeepLabv3~\cite{chen2017rethinking}, ap
 (Atrous Spatial Pyramid Pooling, or ASPP, Figure~\ref*{fig:aconv} b) to effectively capture multi-scale information. 
 Image-level features, or image pooling, are also applied to incorporate global context information. Those are calculated by applying global average pooling on the last feature map of the backbone.
 After applying all the operations in parallel, the results of each operation along the channel is concatenated and 1$\times$1 convolution is applied to get the output.
-The addition of atruos convolutions allows the enlargement of the field of view without
-increasing the size of the filtering kernel, therefore the computation time.
+The addition of atrous convolutions allows the enlargement of the field of view without
+increasing the size of the filtering kernel, therefore no increase in the computation time.
 \subsubsection{DeepLabv3+}
 The reproduction of shape contours during semantic image segmentation remained difficult with DeepLabv3~\cite{chen2018encoder}.
 DeepLabv3 bilinearly upsamples the logits both during training and evaluation (Fig.~\ref*{fig:deeplab} a), hence
@@ -45,8 +45,7 @@ while the detailed object boundaries are recovered by the decoder module and the
 
 \subsection{Transformers}
 \label{trans}
-Transformers~\cite{vaswani2017attention} were originally designed for the neural machine translation
-problem in NLP to capture long-range dependencies among words in a sentence.
+Transformers~\cite{vaswani2017attention} were originally designed for the neural machine translation problem in NLP to capture long-range dependencies among words in a sentence.
 Their architecture converts one sequence into another one based on encoder-decoder architecture,
 but it differs from the previously existing sequence-to-sequence models because
 it does not imply any Recurrent Networks. 
@@ -69,15 +68,15 @@ Scaled Dot-Product Attention (Figure~\ref{fig:trans_attn}, left) can be describe
 \begin{equation} \label{eq:1}
 Attention(Q,K,V) = softmax(\frac{QK^T}{\sqrt{d_k}})V
 \end{equation}
-where, in the context ot translation problem,
+where in the context of the translation problem,
 $Q$ is a matrix of vector representation of one word in the sequence,
 $K$ contains vector representations of all the words in the sequence and
 $V$ contains again the vector representations of all the words in the sequence.
 For the multi-head attention modules in the encoder and decoder,
 $V$ consists of the same word sequence as $Q$.
 However, for the attention module that is taken into account,
-the encoder \underline{and} the decoder sequences, $V$ and $Q$ are different.
-$Q$, $K$ and $V$ matrices are used to calculate the attention scores.
+the encoder \underline{and} the decoder sequences, $V$, and $Q$ are different.
+$Q$, $K$, and $V$ matrices are used to calculate the attention scores.
 These scores measure how much attention needs
 to be placed on words of the input sequence with respect to a word at a certain position.
 The scaling factor $\sqrt{d_k}$ is applied to avoid large values that after 
@@ -106,7 +105,7 @@ Each of the layers in the encoder and decoder contains a fully
 connected feed-forward network, which is applied to each position separately and identically.
 These feed-forward layers can be described as a separate, identical linear transformation of each element from the given sequence.
 
-Naive application of transformers approach into the image domain would require evaluation of relations between each pixel and every other pixel, which is obviously not scalable. The Visual transformer (ViT) \cite{dosovitskiy2020image} is the first work to prove that a pure Transformer can achieve state-of-the-art performance in image classification. ViT converts the input image into a 1D series by cutting it into patches and feeding it to a linear layer. It yields a patch embedding. Position embeddings are added to the image patch embeddings. Adding the learnable position embeddings to each patch allows the model to learn the structure of the image. The rest of the pipeline is a standard encoder and decoder blocks of the transformer.  The decoder learns to map patch-level encodings coming from the encoder to patch-level class scores. Next, these patch-level class scores are upsampled by bilinear interpolation to pixel-level scores.
+Naive application of the transformers approach into the image domain would require evaluation of relations between each pixel and every other pixel, which is obviously not scalable. The Visual transformer (ViT) \cite{dosovitskiy2020image} is the first work to prove that a pure Transformer can achieve state-of-the-art performance in image classification. ViT converts the input image into a 1D series by cutting it into patches and feeding it to a linear layer. It yields a patch embedding. Position embeddings are added to the image patch embeddings. Adding the learnable position embeddings to each patch allows the model to learn the structure of the image. The rest of the pipeline is a standard encoder and decoder blocks of the transformer.  The decoder learns to map patch-level encodings coming from the encoder to patch-level class scores. Next, these patch-level class scores are upsampled by bilinear interpolation to pixel-level scores.
 
 \subsubsection{SegFormer}
 SegFormer~\cite{xie2021segformer} is a positional-encoding-free transformer based semantic segmentation method. As depicted in Figure \ref{fig:segformer_over}, it consists of two main modules: a hierarchical Transformer encoder to generate high-resolution coarse features and low-resolution fine features, and a lightweight All-MLP decoder to fuse these multi-level features and produce the final semantic segmentation mask. 
@@ -136,16 +135,16 @@ $$\hat{K} = Reshape(\frac{N}{R}, C\cdot R)(K)$$
 $$K = Linear(C \cdot R, C)(\hat{K})$$
 where $N = H \times W$, $Reshape(\frac{N}{R}, C \cdot R)(K)$ refers to reshaping $K$ to the the shape of $\frac{N}{R} \times (C \cdot R)$, and $Linear(C \cdot R, C)(\hat{K})$ refers to a linear layer taking a $(C \cdot R)$-dimensional tensor as input and generating a $C$-dimensional tensor as output. Therefore, the new $K$ has dimensions $\frac{N}{R} \times C$. 
 In original experiments, $R$ was set to $[64, 16, 4, 1]$ from stage-1 to stage-4 and
-resulted a reduction of complexity of the self-attention mechanism.
+resulted in a reduction of the complexity of the self-attention mechanism.
 
 Mix-FFN (feed-forward network) can be formulated as:
 $$x_{out} = MLP(GELU(Conv 3\times 3(MLP(x_{in})))) + x_{in}$$
-where $x_{in}$ is the feature from the self-attention module. By using $3 \times 3$ convolution and zero padding in feed-forward network SegFormer aims to leak pixel location information since it is a positional-encoding-free method.
+where $x_{in}$ is the feature from the self-attention module. By using $3 \times 3$ convolution and zero padding in a feed-forward network SegFormer aims to leak pixel location information since it is a positional-encoding-free method.
 
 
 The multi-level features are then passed to All-MLP decoder to predict the segmentation mask at $\frac{H}{4}\times \frac{W}{4}\times N_{cls}$ resolution, where $N_{cls}$ is the number of classes.
 The proposed All-MLP decoder consists of four main steps. First, multi-level features from
-the encoder go through an MLP layer to unify the channel dimension (\ref{eq:2}). Then, features are up-sampled to $\frac{1}{4}$th of the original image (\ref{eq:3}). Third, a MLP layer is adopted to fuse the concatenated features (\ref{eq:4}). Finally, another MLP layer takes the fused feature to predict the segmentation mask (\ref{eq:5}).
+the encoder go through an MLP layer to unify the channel dimension (\ref{eq:2}). Then, features are up-sampled to $\frac{1}{4}$th of the original image (\ref{eq:3}). Third, an MLP layer is adopted to fuse the concatenated features (\ref{eq:4}). Finally, another MLP layer takes the fused feature to predict the segmentation mask (\ref{eq:5}).
 \begin{equation} \label{eq:2}
 \hat{F_i} = MLP(C_i, C)(F_i), \forall i
 \end{equation}
@@ -162,7 +161,7 @@ where $F_i$ is the the feature and $M$ is the final mask.
 
 \section{Survival Analysis}
 The overall survival (OS) is the primary endpoint for prognostic analysis in this thesis,
-hence time to death is the event of interest. 
+hence time to the event (death) is of interest. 
 Survival data are generally described and modeled in terms of two related probabilities, namely survival and hazard.~\cite{clark2003survival}
 This thesis focuses on non-parametric models to avoid making any additional assumptions about the distributions.
 The survival probability $S(t)$ is the probability that an individual survives from the time origin (in our case diagnosis of breast cancer) to a specified future time $t$.
@@ -213,12 +212,12 @@ Estimation of the parameter $\beta$ is often done by maximizing the partial like
 $$ \hat{L}(\beta) = \prod_{i=1}^n \frac{h(T_i|C_i)}{\sum_{j: T_j \geq T_i} h(T_j|C_j)} = \prod_{i=1}^n \frac{\exp(C_i^T \beta)}{\sum_{j: T_j \geq T_i} \exp(C_j^T \beta)}$$
 A positive sign of $\beta_i$ indicates a higher risk of an event, hence the probability for the event for that particular subject is higher. Likewise for a negative signed $\beta_i$, lower risk, and lower probability. The actual value of $\beta_i$ plays a role as well. Values less than one will reduce the hazard and values greater than one, increase it.
 
-A model's accuracy can be quantified on the basis of concordance.~\cite{therneau20201} 
+A model's accuracy can be quantified based on concordance.~\cite{therneau20201} 
 It is a measure of the rank correlation between predicted risks and observed time points. 
 It is defined as the ratio of correctly ordered (concordant) patient pairs to all concordant and discordant patient pairs.
 Let $i, j$ be a patient pair. If a model predicts a higher risk for the first patient ($\eta_i > \eta_j$), for it to be a concordant pair first patient should have a shorter survival time in comparison with the other patient ($ T_i < T_j$) and similarly if lower risk then longer survival time, $\eta_i < \eta_j \And T_i > T_j$.
 If both patients are censored the pair is discarded.
-If only one patient is censored, the pair is not discarded only if the other patient experienced the event prior to the censoring time. By construction, concordance must be between $0$ and $1$, with $1$
+If only one patient is censored, the pair is not discarded only if the other patient experienced the event before the censoring time. By construction, concordance must be between $0$ and $1$, with $1$
 representing the perfect agreement between model and
 observation and $0.5$ representing random guesses.
 
