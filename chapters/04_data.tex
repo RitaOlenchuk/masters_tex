@@ -31,21 +31,21 @@ The TiGER tissue annotations include eight
 labels that were reduced to three (see Table~\ref*{tab:label_data}).
 The training masks were generated using available XML files. In the provided mask
 images, in certain cases, regions not included in ROIs and non-annotated regions in ROIs where
-marked with the same label, which could not be directly used for training.
+marked with the same label, which could not be directly used for training (see Ground truth in Figure~\ref*{fig:TCGA-GM-A2DF}).
 \begin{table}[h!]
 \centering
-\begin{tabular}{ l c c c } 
+\begin{tabular}{ l c c c c } 
 \hline
-TiGER Tissue Label & Share & ID & new ID  \\ 
+TiGER Tissue Label & Share & ID & new ID & new Tissue Label \\ 
 \hline
-Invasive tumor & 0.283 & 1 & 1 \\ 
-In-situ tumor & 0.029 & 3 & 1 \\ 
-Tumor-associated stroma & 0.286 & 2 & 2\\
-Inflamed stroma & 0.096 & 6 & 2\\
-Necrosis not in-situ & 0.048 & 5 & 0\\
-Healthy glands & 0.0008 & 4 & 0 \\ 
-Background & 0.231 & 0 & 0 \\ 
-Rest & 0.026 & 7 & 0\\
+Invasive tumor & 0.283 & 1 & 1 & Tumor\\ 
+In-situ tumor & 0.029 & 3 & 1 & Tumor\\ 
+Tumor-associated stroma & 0.286 & 2 & 2 & Stroma\\
+Inflamed stroma & 0.096 & 6 & 2 & Stroma\\
+Necrosis not in-situ & 0.048 & 5 & 0 & Rest\\
+Healthy glands & 0.0008 & 4 & 0 & Rest\\ 
+Background & 0.231 & 0 & 0 & Rest\\ 
+Rest & 0.026 & 7 & 0 & Rest\\
 \hline
 \end{tabular}
 \caption{\label{tab:label_data} Reduction of labels provided in TiGER challenge dataset. Resulting labels include three classes: Tumor (1), Stroma (2) and Rest (0) with shares of 0.312, 0.382 and 0.306. Shares were calculated by dividing
