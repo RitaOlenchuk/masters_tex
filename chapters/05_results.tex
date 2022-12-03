@@ -1,6 +1,7 @@
 \chapter{Results and Discussion}
-\section{Tissue Segmentation}
-The three models were trained to segment the input H\&E image into three prediction maps:
+\section{Tissue Segmentation}  \label{res_tissue_segm}
+The three models were trained to segment the RGB input of H\&E stained image at 20$\times$ magnification
+(resolution of 0.5 micron-per-pixel) into three prediction maps:
 tumor, stroma, and rest (not white space, but tissue that is neither tumor nor stroma,
 for details refer to Table~\ref*{tab:label_data}). The data was separated on the patient
 level (or slide level, since there is one slide per patient present)
@@ -45,8 +46,8 @@ and stride equals 128. The additional rotation augmentation was applied, by rota
         \hline
         & 195 & 286 & 280\,280 &  &  &  & & & \\
     \end{tabular}
-    \caption{\label{tab:patch_sep} The overview of patches that were split into train, validation,
-    and test sets for tissue segmentation. The percentages indicate the fraction of a specific conditioned group of patches to the number of all patches in the \#patches column.}
+    \caption{\label{tab:patch_sep} Overview of patches that were split into train, validation,
+    and test sets for tissue segmentation. The percentages indicate the fraction of a specific conditioned group of patches to the number of all patches in the "patches" column.}
 \end{table}
 
 The models were trained with the mmsegmentation toolbox~\cite{mmseg2020}. 
@@ -69,7 +70,7 @@ factor 1.0 by default.
         \multirow{2}{*}{Model} & \multirow{2}{*}{FLOPs} & \multirow{2}{*}{Params} & \multirow{2}{*}{Iterations} & \multirow{2}{*}{Runtime} & \multicolumn{4}{c}{mDice}\\
         & & & & & Overall & Tumor & Stroma & Rest \\
         \hline
-        DeepLabv3+ & 44.16 & 43.58 M & 160 K & 1d 12h 2m & 85.25 & 85.13 & 88.07 & 83.66\\
+        DeepLabv3+ & 44.16 & 43.58 M & 160 K & 1d 12h 2m & \textbf{85.25} & 85.13 & 88.07 & 83.66\\
         SegFormer & 12.96 & 81.97 M & 160 K  & 3d 4h 30m & 83.44 & 83.83 & 86.32 & 80.16\\
         SegFormer, & \multirow{2}{*}{12.96} & \multirow{2}{*}{81.97 M} & \multirow{2}{*}{160 K} & \multirow{2}{*}{3d 4h 25m} & \multirow{2}{*}{84.93} & \multirow{2}{*}{85.40} & \multirow{2}{*}{87.40} & \multirow{2}{*}{82.00}\\
         AdamW & & & & & & & & \\
@@ -136,6 +137,8 @@ is either very close or slightly better then DeepLabv3+ or like in Figure~\ref*{
 where SegFormer AdamW is significantly more accurate. Yet while 
 the SegFormer AdamW model remains promising, due to overall better performance and
 runtime, this thesis will use the DeepLabv3+ model for further inferences and analysis.
+For model inference, the model with the best Dice score on the validation set was used.
+
 
 \begin{figure}[H]
     \includegraphics[width=\linewidth]{figures/tissue/deeplabv3+_dice_tc_TC_S01_P000159_C0001_B108_[18565,_51594,_19649,_52655]_check.png}
@@ -173,7 +176,7 @@ runtime, this thesis will use the DeepLabv3+ model for further inferences and an
 \includegraphics[width=\linewidth]{figures/tissue/segformer_dice_s_250B_[16272,_25312,_17441,_26473]_check.png}
 \includegraphics[width=\linewidth]{figures/tissue/segformer,_adamw_dice_s_250B_[16272,_25312,_17441,_26473]_check.png}
 
-\caption{JB ROI segmentation result.}
+\caption{JB S\_250B ROI segmentation result.}
 \label{fig:s_250B_1}
 \end{figure}
 
@@ -182,7 +185,7 @@ runtime, this thesis will use the DeepLabv3+ model for further inferences and an
 \includegraphics[width=\linewidth]{figures/tissue/segformer_dice_s_250B_[29477,_26912,_30725,_28086]_check.png}
 \includegraphics[width=\linewidth]{figures/tissue/segformer,_adamw_dice_s_250B_[29477,_26912,_30725,_28086]_check.png}
 
-\caption{JB ROI segmentation result.}
+\caption{JB S\_250B ROI segmentation result.}
 \label{fig:s_250B_2}
 \end{figure}
 
@@ -191,31 +194,161 @@ runtime, this thesis will use the DeepLabv3+ model for further inferences and an
 \includegraphics[width=\linewidth]{figures/tissue/segformer_dice_tcga_TCGA-EW-A1P4-01Z-00-DX13E9AE553-83D4-4B09-AB7F-D096BCE3BC4D_[8630,_17717,_11173,_19809]_check.png}
 \includegraphics[width=\linewidth]{figures/tissue/segformer,_adamw_dice_tcga_TCGA-EW-A1P4-01Z-00-DX13E9AE553-83D4-4B09-AB7F-D096BCE3BC4D_[8630,_17717,_11173,_19809]_check.png}
 
-\caption{TCGA ROI segmentation result.}
+\caption{TCGA-EW-A1P4-01Z-00-DX1 ROI segmentation result.}
 \label{fig:TCGA-EW-A1P4}
 \end{figure}
 
 
 
 \section{TILs Segmentation}
+TILs segmentation task aimed to segment the RGB input of H\&E stained image at 20$\times$ magnification
+(resolution of 0.5 micron-per-pixel) into two prediction maps: TILs and rest.
+The split of the patients was used similarly to the previously described in
+Tabel~\ref*{tab:patients_sep}. Even though the same patients are present in
+this data set, the annotations originate from a different
+study which results in a different ROI and patch statistics shown in
+Table~\ref*{tab:patch_sep_tils}. The patches were then created using a sliding
+window approach with 128$\times$128 sized patches
+and stride equals 100. The ROIs that were smaller than 128$\times$128
+were padded. The additional rotation augmentation was applied,
+by rotating each patch 5 times at 9 degrees each.
+The column "Number of patches that include rest" in Table~\ref*{tab:patch_sep_tils}
+seems excessive, but was still added
+for better data comprehension: the ROIs for TILs segmentation are either
+completely annotated as rest or include occasional TILs masks.
+%This unequal distribution of the classes cause the dataset to be imbalanced.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{ l c c c c c c c }
+        \hline
+        & \multirow{2}{*}{slides} & \multirow{2}{*}{ROIs}& \multirow{2}{*}{patches}& \multicolumn{4}{c}{Number of patches that include}\\ 
+        \cline{5-8}
+        & & & & TILs & Rest & 1 class & 2 classes \\
+        \hline
+        Train & 156 & 1\,552 & 106\,974 & 35\,433 & 106\,974 & 71\,541 & 35\,433\\
+         &  &  &  & (33\%) & (100\%) & (67\%) & (33\%)  \\
+        Validation & 20 & 154 & 15\,518 & 14\,164 & 15\,518 & 5\,638 & 3\,734 \\
+         &  &  &  & (27\%) & (100\%) & (60\%) & (40\%)\\
+        Test & 19 & 173 & 9\,372 & 3\,734 & 9\,372& 11\,354 & 4\,164\\
+         &  &  &  & (40\%) & (100\%) & (73\%) & (27\%)\\
+        \hline
+        & 195 & 1\,879 & 131\,864 &  &  &  & \\
+    \end{tabular}
+    \caption{\label{tab:patch_sep_tils} Overview of patches that were split into train, validation,
+    and test sets for TILs segmentation. The percentages indicate the fraction of a specific conditioned
+    group of patches to the number of all patches in the "patches" column.}
+\end{table}
+
+The model architectures and their parameters were used as described in~\ref*{res_tissue_segm}:
+DeepLabv3+, SegFormer with Adam optimizer, and SegFormer with AdamW. An important
+change is an increased batch size of 128, which was allowed due to smaller patch
+sizes of 128$\times$128. In the model overview in Table~\ref*{tab:tils_perform}
+the number of parameters and
+iterations remain the same. FLOPs values are dependent on input shape, therefore
+it was expected to drop since the input is smaller.
+It is aslo noticed that for TILs segmentation the runtime between all three models
+becomes comparable in contrast to tissue segmentation (Table~\ref*{tab:tissue_perform}).
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{ l c c c c c c c c}
+        \hline
+        Model & FLOPs & Params & Iterations & Runtime & F1 score & Precision & Recall\\
+        \hline
+        DeepLabv3+ & 11.04 & 43.58 M & 160 K & 2d 8h 36m & 0.49 & 0.58 & 0.43\\
+        SegFormer & 3.24 & 81.97 M & 160 K  & 2d 11h 36m & 0.62 & 0.62 & 0.33\\
+        SegFormer, & \multirow{2}{*}{3.24} & \multirow{2}{*}{81.97 M} & \multirow{2}{*}{160 K} & \multirow{2}{*}{2d 15h 19m} & \multirow{2}{*}{\textbf{0.66}} & \multirow{2}{*}{0.64} & \multirow{2}{*}{0.69}\\
+        AdamW & & & & & & & & \\
+        \hline
+    \end{tabular}
+\caption{\label{tab:tils_perform} Overview of the trained TILs segmentation models. The runtime is given for a training on one GPU NVIDIA A100 SXM4.}
+\end{table}
+
+For proper evaluation the predicted TILs segmentation needed to be reduced to TILs
+centers (one pixel) that can be then further matched to ground truth.
+To get the centers of predicted TILs, non-maximum suppression was applied on
+posterior images that were clipped between 0 and 255. The search for the best-fitted
+parameter of kappa (threshold) and kernel size was executed on the validation set.
+As pictured on  Figure~\ref*{fig:kappas} there were multiple experiments performed
+with kernel sizes  in [1, 3, 5, 7, 9, 11, 13] and multiple kappas. The highest value of
+kappa was the median value over all posteriors. The consecutive values were the
+two power fractions of the median. Figure~\ref*{fig:kappas} includes two images
+for DeepLabv3+ (first in the first row and first in the second row) to provide a
+zoomed look of the tighter range. As a result, the best parameters on the validation
+set were chosen as kappa=21, kernel size=9 for DeepLabv3+ and kappa=64, kernel size=5
+for SegFormer-based methods. The resulting centers can be then matched to
+the ground truth by applying the Hungarian algorithm that finds the best assignment
+to match ground truth TILs with predicted ones. The allowed maximum distance for a
+match of predicted with ground truth TILs was set to 5 \textmu m.
 
 \begin{figure}[h!]
 \includegraphics[width=.5\linewidth]{figures/tils/deeplabv3+_f1_kappas_kernels_plot.png}
 \includegraphics[width=.5\linewidth]{figures/tils/segformer_f1_kappas_kernels_plot.png}
-
 \includegraphics[width=.5\linewidth]{figures/tils/deeplabv3+_f1_kappas_kernels_plot_zooomed.png}
 \includegraphics[width=.5\linewidth]{figures/tils/segformer,_adamw_f1_kappas_kernels_plot.png}
-
-\caption{EXAMPLES for TILs prediction models. A lot of test comming up here.}
-\label{fig:figure3}
-
+\caption{Determination process for best kappa and kernel size for DeepLabv3+
+(first in the first row and first in the second row), SegFormer (second in the first row),
+and SegFormer with AdamW (second in the second row).}
+\label{fig:kappas}
 \end{figure}
 
-\begin{figure}[h!]
-\includegraphics[width=.305\textwidth]{figures/tils/TCGA-D8-A142-01Z-00-DX1_F1_deeplabv3+_adj.png}
-\includegraphics[width=.3\textwidth]{figures/tils/TCGA-D8-A142-01Z-00-DX1_F1_segformer_adj.png}
-\includegraphics[width=.319\textwidth]{figures/tils/TCGA-D8-A142-01Z-00-DX1_F1_segformer,_adamw_adj.png}
-\caption{EXAMPLES for TILs prediction models. A lot of test comming up here.}
-\label{fig:figure3}
+The final results represented in Table~\ref*{tab:tils_perform} show that SegFormer
+model with AdamW optimizer strongly outperforms DeepLabv3+ and simple SegFormer.
+Furthermore, while distinguishing the F1 scores between ROIs originating from different medical
+centers in Figure~\ref*{fig:tils_dice_boxplots}, SegFormer AdamW results show
+significantly better results in all subgroups.
+\begin{figure}[H]
+    \includegraphics[width=.32\linewidth]{figures/tils/deeplabv3+_F1_roi_adj.png}
+    \includegraphics[width=.32\linewidth]{figures/tils/segformer_F1_roi_adj.png}
+    \includegraphics[width=.32\linewidth]{figures/tils/segformer,_adamw_F1_roi_adj.png}
+    \caption{Boxplots of dice score across three datastes (TCGA-BRCA, RUMC, JB) with
+    maximum allowed distance between ground truth and prediction equals 10 pixels (5 \textmu m).}
+    \label{fig:tils_dice_boxplots}
+\end{figure}
+Interestingly the precision boxplots
+in Figure~\ref*{fig:tils_pr_r_boxplots} do not show such an unequivocal superiority,
+where in the JB subgroup simple SegFormer manages to predict fewer false positives and 
+(n=2) indicates that the model managed to predict empty ROI as a complete rest region,
+which is not the case for any other model.
+In more detailed
+Figure~\ref*{fig:TCGA-D8-A142_tils} one can see the intermediate steps of
+how the posteriors are simplified into point segmentations and later the misted,
+falsely annotated and correct TILs can be compared. Even on the level of posteriors
+(overlayed with H\&E image), it is visible that SegFormer AdamW manages to detect
+more regions, especially closer to the border of the image. Taking into account all
+discussions above and the overall better performance, the SegFromer AdamW was
+considered the best model, and the model with the highest pixel-wise dice score
+on the validation set was taken to the next step. 
 
+\begin{figure}[H]
+    \includegraphics[width=.32\linewidth]{figures/tils/deeplabv3+_precision_roi_adj.png}
+    \includegraphics[width=.32\linewidth]{figures/tils/segformer_precision_roi_adj.png}
+    \includegraphics[width=.32\linewidth]{figures/tils/segformer,_adamw_precision_roi_adj.png}
+    \includegraphics[width=.32\linewidth]{figures/tils/deeplabv3+_recall_roi_adj.png}
+    \includegraphics[width=.32\linewidth]{figures/tils/segformer_recall_roi_adj.png}
+    \includegraphics[width=.32\linewidth]{figures/tils/segformer,_adamw_recall_roi_adj.png}
+    \caption{Boxplots of precision and recall across three datastes (TCGA-BRCA, RUMC, JB) with
+    maximum allowed distance between ground truth and prediction equals 10 pixels (5 \textmu m).}
+    \label{fig:tils_pr_r_boxplots}
+\end{figure}
+
+%\begin{figure}[H]
+%    \includegraphics[width=.5\linewidth]{figures/tils/deeplabv3+_precision_roi_adj.png}
+%    \includegraphics[width=.5\linewidth]{figures/tils/deeplabv3+_recall_roi_adj.png}   
+%    \includegraphics[width=.5\linewidth]{figures/tils/segformer_precision_roi_adj.png}
+%    \includegraphics[width=.5\linewidth]{figures/tils/segformer_recall_roi_adj.png}    
+%    \includegraphics[width=.5\linewidth]{figures/tils/segformer,_adamw_precision_roi_adj.png}
+%    \includegraphics[width=.5\linewidth]{figures/tils/segformer,_adamw_recall_roi_adj.png}
+%    \caption{Boxplots of precision and recall across three datastes (TCGA-BRCA, RUMC, JB) with
+%    maximum allowed distance between ground truth and prediction equals 10 pixels (5 \textmu m).}
+%    \label{fig:tils_pr_r_boxplots}
+%\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.97\textwidth]{figures/tils/TCGA-D8-A142-01Z-00-DX12_2.png}
+    \caption{TCGA-D8-A142-01Z-00-DX12 TILs prediction with DeepLabv3+, SegFormer and
+    SegFormer, AdamW. With 0.774, 0.842 and 0.872 F1 scores accordingly.}
+    \label{fig:TCGA-D8-A142_tils}
 \end{figure}
