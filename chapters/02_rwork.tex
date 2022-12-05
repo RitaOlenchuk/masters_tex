@@ -65,7 +65,7 @@ sampling rates allowing to capture objects and image contexts at multiple scales
 at multiple scales. DeepLabv3+~\cite{chen2018encoder} uses encoder-decoder architecture including atrous
 separable convolution, composed of a depthwise convolution (spatial convolution for each channel of the
 input) and pointwise convolution (1$\times$1 convolution with the depthwise convolution as input).
-Authors~\cite{chen2018encoder} demonstrated the effectiveness of DeppLabv3+ model on
+Authors~\cite{chen2018encoder} demonstrated the effectiveness of DeepLabv3+ model on
 segmentation of H\&E stained breast cancer~\cite{priego2020automatic}. 
 Despite all the efforts, even this popular architecture has constraints in learning long-range
 dependency and spatial correlations due to the inductive bias of locality and weight
@@ -109,7 +109,7 @@ segmentation~\cite{strudel2021segmenter}, is not particularly used in the medica
 In the field of medical image segmentation, TransUNet~\cite{chen2021transunet} was the first attempt
 to establish self-attention mechanisms by combining transformer with U-Net and proved that
 transformers can be used as powerful encoders for medical image segmentation.
-A novel positional-encoding-free Transformer SegFormer~\cite{https://doi.org/10.48550/arxiv.2105.15203}
+A novel positional-encoding-free Transformer SegFormer~\cite{xie2021segformer}
 set new state-of-the-art in terms of efficiency and accuracy in publicly available semantic segmentation
 datasets and applied for gland and nuclei segmentation~\cite{lin2022ds}.
 This architecture remains promising also for semantic segmentation in medical

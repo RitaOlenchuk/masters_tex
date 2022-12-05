@@ -159,6 +159,54 @@ M = MLP(C, N_{cls})(F)
 \end{equation}
 where $F_i$ is the the feature and $M$ is the final mask.
 
+\subsection{TILs segmentation postprocessing}
+\subsubsection{Non-maximum Suppression (NMS)}
+Non-maximum Suppression is a class of algorithms to select
+one entity out of many overlapping entities. In terms of
+detection models, used to find the best-fitting bounding box out of all predicted
+bounding boxes for the same object~\cite{bodla2017soft}.
+Each proposal comes with a confidence score. One by one the bounding box with
+the highest score is selected to keep and compared to all bounding boxes by calculating Intersection Over Union (IoU).
+If a comparison scores the IoU higher than some defined threshold,
+those bounding boxes out of the pool are eliminated.
+The process is repeated by picking the highest confidence bounding box out of the
+remaining pool of proposals until there are any.
+
+In terms of TILs segmentation, there are no proposed bounding boxes and no scores.
+Nonetheless, to obtain good centroids for each TILs prediction, the segmentation posteriors
+need to be condensed to local maxima. The NMS application will in this case appropriately
+filter the segmentation posteriors with a kappa threshold and the segmentation borders
+refined to get a clear centroid annotation with a defined kernel size used for dilation.
+
+\subsubsection{Hungarian algorithm}
+To evaluate the match of predicted TILs and ground truth annotations,
+it is not enough to compare the coordinates. Each TIL should be annotated
+with a point annotation of one pixel, it is aimed to be placed in the center
+but really can be placed anywhere within a TIL area.
+The goal is to find the pairs of coordinates that indicate the same TIL object.
+Matching between the ground truth set and predictions can be solved as an assignment
+problem with the Hungarian algorithm~\cite{kuhn1955hungarian}. It is a combinatorial
+optimization algorithm that solves the problem in polynomial time complexity.
+The distance matrix $n\times m$ between all annotated ($n$) versus predicted ($m$)
+TILs is the cost matrix of each of the prediction coordinates to match any of the ground
+truth coordinates. The goal is to assign the ground truth coordinates to the prediction
+coordinates to minimize the total distance. The algorithm can be introduced as step-by-step instruction:
+\begin{itemize}
+  \itemsep0em 
+  \item Step 1: For each row, subtract the smallest element of the row from each of its elements.
+  \item Step 2: For each column, subtract the smallest element of the column from each of its elements.
+  \item Step 3: Cover all zeros with a minimum number of lines
+  \item[] In the resulting matrix cover all zeros using a minimum number of horizontal and vertical lines. 
+  If there are $n$ lines, Step 5.
+  \item Step 4: Find the smallest element that is not covered by a line in Step 3.
+  Subtract it from all uncovered elements, and add it to all elements that are covered twice. Step 3.
+  \item Step 5: Assignment pairs are indicated by the positions of the zeros in the cost matrix. 
+\end{itemize}
+As a result, the assignment pairs include the matching of ground truth TILs coordinates to the
+prediction coordinates that minimize the total distance. If desired, the pairs can be filtered
+by minimal allowed distance. This work uses the \verb+scipy.optimize.linear_sum_assignment+
+implementation of the Hungarian algorithm.
+
 \section{Survival Analysis}
 The overall survival (OS) is the primary endpoint for prognostic analysis in this thesis,
 hence time to the event (death) is of interest. 
@@ -170,7 +218,7 @@ where $T$ is a random variable that indicates the time until the event of intere
 and probability density function of $T$. 
 The hazard is the probability that an individual who is under observation at a time $t$ has an event at that time:
 $$h(t) = lim_{\delta t \rightarrow 0}\frac{Pr(t \leq T \leq t + \delta t | T > t)}{\delta t} = \frac{f(t)}{1-F(t)}$$
-In contrast to the survivor function, which focuses on not having an event, the hazard function focuses on the event occurring. 
+In contrast to the survival function, which focuses on not having an event, the hazard function focuses on the event occurring. 
 So if hazard probability describes the intensity of death~\cite{STAT_425} at the
 time $t$ given that the individual has already survived past time $t$, then
 the cumulative hazard is the cumulative amount of hazard up to time $t$.
