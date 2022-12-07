@@ -1,0 +1,41 @@
+\chapter{Conclusion}
+In this thesis, a new pipeline for TILs scoring in breast cancer patients was presented.
+The tasks of tissue segmentation and TILs detection for WSI were approached with DeepLabv3+
+which is actively used in computational pathology, as well as with a novel transformer-based
+approach, SegFormer. As a result, the SegFormer was found to be superior in the TILs
+segmentation task. The analysis of TCGA-BRCA slides with the resulting models, allowed
+for experiments with different TILs density based features. Several of them showed the
+ability to successfully stratify patients at multiple prevalences. This proves a strong
+signal of TILs in the TCGA-BRCA dataset, which was not previously demonstrated while
+analyzing exclusively this publically available dataset. 
+
+As an outlook, one of the main missing prospects of this work is the absence of
+benchmarking with the existing challenge entries. Due to the late start of this
+work the submission portal was closed by the time the models were present. 
+The TiGER challenge team that achieved the highest rank on the preliminary leaderboards
+for both segmentation of tissue and TILs published their approach before the challenge ended.
+The authors~\cite{shephard2022tiager} trained Efficient-UNet-B0 for both tasks using Jaccard loss.
+The model was trained via a stratified 5-fold
+cross-validation framework with 512$\times$512 patches at 10$\times$ magnification,
+with a stride of 256 pixels. Whereas for TILs segmentation,
+the patches of 128$\times$128 were extracted at 20$\times$ magnification, with a stride of 100 pixels.
+The selected model with the best F1-score across each experiment on 5-fold cross-validation achieved
+a dice score of 0.762 for tumor segmentation, 0.718 for stroma segmentation, and  0.702 for TILs
+detection. The TILs score was calculated by dividing the total predicted TILs area by the stromal
+area and multiplying by 100. The score was further constrained to be an integer between 0 and 100.
+The resulting TILs scores got the highest concordance of 0.719 for predicting survival as part of
+a Cox proportional hazards model. Right now any of the results in this paper or any future papers
+of the TiGER challenge can be compared to the results in this thesis, due to the arrangement of the
+challenge, the reported results are based on hidden test set and internal clincal data.
+As long as the submission server is closed, those models and ideas need to be reimplemented.
+Besides benchmarking, those challenge entries can provide valuable ideas for improvements to the current pipeline.
+Such as applying transfer-learning, by using this model with pre-trained weights from ImageNet for tissue
+segmentation or an on-the-fly under-sampling approach to alleviate class imbalance of TILs segmentation task.
+There are also some similarities in approaches such as, similarly to this thesis, the authors~\cite{shephard2022tiager}
+viewed TILs detection problem as TILs segmentation, but additionally, stain augmentation was applied. Even though the
+importance of the stain addition could be
+suspected from the tissue segmentation results, this is one of the valuable experiments that can be further performed.
+All in all, this thesis also provides a better understanding and test possibilities for TILs features development.
+Instead of blindly submitting a value, adapting the TCGA-BRCA data set enables it to actually view the data specifics
+which could have helped the participants if the challenge (applicable if of course TCGA-BRCA data is not included in
+the hidden clinical data of the data set).

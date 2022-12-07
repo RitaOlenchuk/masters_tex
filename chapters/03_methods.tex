@@ -160,6 +160,13 @@ M = MLP(C, N_{cls})(F)
 where $F_i$ is the the feature and $M$ is the final mask.
 
 \subsection{TILs segmentation postprocessing}
+As tissue segmentation, TILs detection was approached as a semantic
+segmentation problem with detection bounding boxes transformed into
+pseudo-segmentation masks (further details in Data section~\ref{section:data_segmentation}).
+TILs segmentation results were first processed with non-maximum suppression
+to extract local maxima, then obtain point annotation of each TIL, and compare
+with ground truth annotations by finding a match with the Hungarian Algorithm.
+
 \subsubsection{Non-maximum Suppression (NMS)}
 Non-maximum Suppression is a class of algorithms to select
 one entity out of many overlapping entities. In terms of
@@ -176,13 +183,13 @@ In terms of TILs segmentation, there are no proposed bounding boxes and no score
 Nonetheless, to obtain good centroids for each TILs prediction, the segmentation posteriors
 need to be condensed to local maxima. The NMS application will in this case appropriately
 filter the segmentation posteriors with a kappa threshold and the segmentation borders
-refined to get a clear centroid annotation with a defined kernel size used for dilation.
+refined to get a clear TIL region annotation with a suitable kernel size used for dilation.
 
 \subsubsection{Hungarian algorithm}
 To evaluate the match of predicted TILs and ground truth annotations,
 it is not enough to compare the coordinates. Each TIL should be annotated
 with a point annotation of one pixel, it is aimed to be placed in the center
-but really can be placed anywhere within a TIL area.
+but really placed in the center of a predicted TIL area, which is not perfect.
 The goal is to find the pairs of coordinates that indicate the same TIL object.
 Matching between the ground truth set and predictions can be solved as an assignment
 problem with the Hungarian algorithm~\cite{kuhn1955hungarian}. It is a combinatorial
@@ -212,6 +219,7 @@ The overall survival (OS) is the primary endpoint for prognostic analysis in thi
 hence time to the event (death) is of interest. 
 Survival data are generally described and modeled in terms of two related probabilities, namely survival and hazard.~\cite{clark2003survival}
 This thesis focuses on non-parametric models to avoid making any additional assumptions about the distributions.
+Throughout the analysis, the python library \verb+lifelines+~\cite{davidson2019lifelines} was used.
 The survival probability $S(t)$ is the probability that an individual survives from the time origin (in our case diagnosis of breast cancer) to a specified future time $t$.
 It can be denoted as: $$S(t) = Pr(T>t) = 1-F(t) = \int_t^\infty f(x) dx = \textrm{ Probability of surviving past time } t $$
 where $T$ is a random variable that indicates the time until the event of interest (death). $F(t)$ and $f(t)$ are the cumulative distribution function

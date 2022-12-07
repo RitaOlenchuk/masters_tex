@@ -1,12 +1,12 @@
-\chapter{Results and Discussion}
+\chapter{Results \& Discussion}
 \section{Tissue Segmentation}  \label{res_tissue_segm}
-The three models were trained to segment the RGB input of H\&E stained image at 20$\times$ magnification
+Three models were trained to segment the RGB input of H\&E stained image at 20$\times$ magnification
 (resolution of 0.5 micron-per-pixel) into three prediction maps:
 tumor, stroma, and rest (not white space, but tissue that is neither tumor nor stroma,
 for details refer to Table~\ref*{tab:label_data}). The data was separated on the patient
 level (or slide level, since there is one slide per patient present)
 into training, validation, and test with 80\%, 10\%, and 10\% accordingly.
-In order to keep the distribution of the resulting patches numbers (see Table~\ref*{tab:patch_sep})
+In order to keep the distribution of the resulting patch numbers (see Table~\ref*{tab:patch_sep})
 and dataset sources fair, the patient separation in Table~\ref*{tab:patients_sep} was introduced.
 
 \begin{table}[h!]
@@ -25,7 +25,7 @@ and dataset sources fair, the patient separation in Table~\ref*{tab:patients_sep
 into train, validation, and test sets for segmentation tasks.}
 \end{table}
 
-The patches were then created using a sliding window approach with 256$\times$256 sized patches
+The patches were created using a sliding window approach with 256$\times$256 sized patches
 and stride equals 128. The additional rotation augmentation was applied, by rotating each patch
 5 times at 9 degrees each.
 
@@ -86,24 +86,16 @@ factor 1.0 by default.
     \label{fig:tissue_confusion}
 \end{figure}
 
-During the close investigation of test data, one slide (with the prefix TCGA-OL-A5RW-01Z-00-DX1)
+During a close investigation of test data, one slide (with the prefix TCGA-OL-A5RW-01Z-00-DX1)
 was excluded from the test set due to an obvious image-mask mismatch. The overall
 performance of the models, the number of parameters, and the resulting dice score after testing on 
-32 test images can be found in Table~\ref*{tab:tissue_perform}.
-
-The first thing that catches the eye is the severe runtime difference of
+32 test images can be found in Table~\ref*{tab:tissue_perform}. The first thing that catches the eye is the severe runtime difference of
 SegFormer-based methods compared to the DeepLabv3+ accompanied by doubled number of parameters.
 None of the SegFormer approaches outperform the DeepLabv3+, but the performance
 is comparable, which can be also observed in the confusion matrices in Figure~\ref*{fig:tissue_confusion}.
-
-\begin{figure}[H]
-    \includegraphics[width=\linewidth]{figures/tissue/dices.png}
-    \caption{Boxplots of pixel wise calculated dice score across three datastes (TCGA-BRCA, RUMC, JB) and three segmentation labels.}
-    \label{fig:tissue_dice_boxplots}
-\end{figure} 
-
 Both SegFormer-based methods show difficulty correctly segmenting rest regions, whereas
 SegFormer AdamW slightly outperforms DeepLabv3+ in the number of true positive detected tumor pixels.
+
 As previously mentioned, the dataset originates from three medical
 institutions which make it reasonable to characterize the performance separately.
 The boxplots in Figure~\ref*{fig:tissue_dice_boxplots} indicate that the performance of
@@ -111,6 +103,12 @@ the DeepLabv3+ and SegFormer AdamW models in TCGA-BRCA and JB groups are fairly 
 Whereas the RUMC group accounts not only for the lower performance of SegFormer-based methods
 in segmenting rest regions but also for an improvement of tumor region segmentation by SegFormer AdamW
 model both observed in Figure~\ref*{fig:tissue_confusion}.
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{figures/tissue/dices.png}
+    \caption{Boxplots of pixel wise calculated dice score across three datastes (TCGA-BRCA, RUMC, JB) and three segmentation labels.}
+    \label{fig:tissue_dice_boxplots}
+\end{figure} 
 
 The additional specialty that Figure~\ref*{fig:tissue_dice_boxplots} brings to light is
 the considerable number of RUMC ROIs that have been evaluated with dice scores close to
@@ -133,12 +131,20 @@ with some dependency to the presence of white space, which also present in the s
 
 Nonetheless, there are positive segmentation results present, such as JB ROIs depicted in
 Figure~\ref*{fig:s_250B_1} and~\ref*{fig:s_250B_2} where the performance of SegFormer AdamW
-is either very close or slightly better then DeepLabv3+ or like in Figure~\ref*{fig:TCGA-EW-A1P4}
-where SegFormer AdamW is significantly more accurate. Yet while 
-the SegFormer AdamW model remains promising, due to overall better performance and
+is either very close or slightly better then DeepLabv3+. 
+Curiously, in Figure~\ref*{fig:s_250B_2} the SegFromer AdamW performs slightly better partly
+because this model, in contrast to the rest, did not attempt to annotate the small possibly
+tumorous region in the upper left corner (around (250, 200), which is not annotated in ground
+truth but visually highly similar to the tumor regions in this example). To decide whether
+this is an encouraging behavior the pathologist must be consulted, but in some cases,
+SegFromer AdamW manages to considerably outperform DeepLabv3+, as visualized in
+Figure~\ref*{fig:TCGA-EW-A1P4}. Yet while the SegFormer AdamW model remains promising, due to overall better performance and
 runtime, this thesis will use the DeepLabv3+ model for further inferences and analysis.
-For model inference, the model with the best Dice score on the validation set was used.
 
+For model inference, the model with the best pixel-wise Dice score on the validation set was used.
+Patches of size 256$×\times$256 were extracted from the tissue region at 20$\times$ magnification
+with a stride of 184 (for faster runtime). The whitespace was extracted by using thresholding and
+inference of non-background pixels was then performed.
 
 \begin{figure}[H]
     \includegraphics[width=\linewidth]{figures/tissue/deeplabv3+_dice_tc_TC_S01_P000159_C0001_B108_[18565,_51594,_19649,_52655]_check.png}
@@ -207,7 +213,7 @@ The split of the patients was used similarly to the previously described in
 Tabel~\ref*{tab:patients_sep}. Even though the same patients are present in
 this data set, the annotations originate from a different
 study which results in a different ROI and patch statistics shown in
-Table~\ref*{tab:patch_sep_tils}. The patches were then created using a sliding
+Table~\ref*{tab:patch_sep_tils}. The patches were created using a sliding
 window approach with 128$\times$128 sized patches
 and stride equals 100. The ROIs that were smaller than 128$\times$128
 were padded. The additional rotation augmentation was applied,
@@ -267,18 +273,18 @@ becomes comparable in contrast to tissue segmentation (Table~\ref*{tab:tissue_pe
 
 For proper evaluation the predicted TILs segmentation needed to be reduced to TILs
 centers (one pixel) that can be then further matched to ground truth.
-To get the centers of predicted TILs, non-maximum suppression was applied on
+To get optimal centers of predicted TILs, non-maximum suppression was applied on
 posterior images that were clipped between 0 and 255. The search for the best-fitted
-parameter of kappa (threshold) and kernel size was executed on the validation set.
-As pictured on  Figure~\ref*{fig:kappas} there were multiple experiments performed
+parameter of kappa (threshold) and kernel size was completed on the validation set.
+As pictured in Figure~\ref*{fig:kappas} there were multiple experiments performed
 with kernel sizes  in [1, 3, 5, 7, 9, 11, 13] and multiple kappas. The highest value of
 kappa was the median value over all posteriors. The consecutive values were the
 two power fractions of the median. Figure~\ref*{fig:kappas} includes two images
 for DeepLabv3+ (first in the first row and first in the second row) to provide a
 zoomed look of the tighter range. As a result, the best parameters on the validation
 set were chosen as kappa=21, kernel size=9 for DeepLabv3+ and kappa=64, kernel size=5
-for SegFormer-based methods. The resulting centers can be then matched to
-the ground truth by applying the Hungarian algorithm that finds the best assignment
+for SegFormer-based methods. The resulting centers were matched to
+the ground truth by applying the Hungarian algorithm that found the best assignment
 to match ground truth TILs with predicted ones. The allowed maximum distance for a
 match of predicted with ground truth TILs was set to 5 \textmu m.
 
@@ -316,7 +322,8 @@ Figure~\ref*{fig:TCGA-D8-A142_tils} one can see the intermediate steps of
 how the posteriors are simplified into point segmentations and later the misted,
 falsely annotated and correct TILs can be compared. Even on the level of posteriors
 (overlayed with H\&E image), it is visible that SegFormer AdamW manages to detect
-more regions, especially closer to the border of the image. Taking into account all
+more regions, especially closer to the border of the image. The grids in Figure~\ref*{fig:TCGA-D8-A142_tils}
+were added for readers' convenience and are not artifacts. Taking into account all
 discussions above and the overall better performance, the SegFromer AdamW was
 considered the best model, and the model with the highest pixel-wise dice score
 on the validation set was taken to the next step. 
@@ -333,22 +340,142 @@ on the validation set was taken to the next step.
     \label{fig:tils_pr_r_boxplots}
 \end{figure}
 
-%\begin{figure}[H]
-%    \includegraphics[width=.5\linewidth]{figures/tils/deeplabv3+_precision_roi_adj.png}
-%    \includegraphics[width=.5\linewidth]{figures/tils/deeplabv3+_recall_roi_adj.png}   
-%    \includegraphics[width=.5\linewidth]{figures/tils/segformer_precision_roi_adj.png}
-%    \includegraphics[width=.5\linewidth]{figures/tils/segformer_recall_roi_adj.png}    
-%    \includegraphics[width=.5\linewidth]{figures/tils/segformer,_adamw_precision_roi_adj.png}
-%    \includegraphics[width=.5\linewidth]{figures/tils/segformer,_adamw_recall_roi_adj.png}
-%    \caption{Boxplots of precision and recall across three datastes (TCGA-BRCA, RUMC, JB) with
-%    maximum allowed distance between ground truth and prediction equals 10 pixels (5 \textmu m).}
-%    \label{fig:tils_pr_r_boxplots}
-%\end{figure}
+For model inference, the model with the best pixel-wise Dice score on the validation set was used.
+Patches of size 128$×\times$128 were extracted from the tissue region at 20$\times$ magnification
+with a stride of 100. The whitespace was extracted by using thresholding and
+inference of non-background pixels was then performed.
 
-\begin{figure}[h!]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.97\textwidth]{figures/tils/TCGA-D8-A142-01Z-00-DX12_2.png}
     \caption{TCGA-D8-A142-01Z-00-DX12 TILs prediction with DeepLabv3+, SegFormer and
     SegFormer, AdamW. With 0.774, 0.842 and 0.872 F1 scores accordingly.}
     \label{fig:TCGA-D8-A142_tils}
 \end{figure}
+
+\section{Survival Analysis}
+\todo[inline]{The following results are generated with DeepLabv3+ TILs detection.Missing heterogeneity features. Waiting for the results to generate. If everything goes wrong, those are the final results. Hopefully not.}
+The patients from TCGA-BRCA clinical data with negative or not complete event times were removed. The remaining
+1005 patients were used for survival analysis.
+1133 segmented diagnostic slides were saved at 5$\times$ magnification. Each slide has determined regions of tumor, stroma,
+and rest, as well as a list of all selected TILs. Based on this information four groups of TILs
+densities were calculated: in stroma, stroma border, tumor associated stroma border,
+and tumor border. The features for patients with multiple slides were mean aggregated.
+The description of the regions is visualized in Figure~\ref*{fig:borders}.
+\begin{wrapfigure}{r}{0.45\textwidth}
+    \centering
+    \includegraphics[width=0.45\textwidth]{figures/survival/tils_scheme.png} 
+    \caption{Schematic border explanation. Created with BioRender.com}
+    \label{fig:borders} 
+\end{wrapfigure}
+The overall TILs density in stroma was considered a baseline feature.
+All densities were calculated as $\frac{\textrm{ Number of TILs}}{\textrm{Area in } mm^2}$.
+For each border region, different widths were used. Tumor border experiments included
+lower border widths of 10-40 \textmu m. Whereas stroma borders ranged between 50
+and 350\textmu m.
+Additionally, tumor associated stroma border of 125 \textmu m was included, since this is
+the optimal border found in the original paper~\cite{thagaard2021automated}.
+It resulted in 20 features
+that were first evaluated on correlation as depicted on a heatmap Figure~\ref{fig:heatmaps_tils}.
+There are three coherent groups visible in Figure~\ref{fig:heatmaps_tils}.
+There is a clear link between different groups and the baseline, such as a high correlation
+of TILs density in stroma with TILs densities in stroma borders, which increases the bigger
+the border gets. And on a contrary, a lower correlation of baseline with TILs density in tumor borders.
+The values of pair-wise Pearson correlations in each group were compared and the columns with
+a correlation higher than 90\% were removed. If all columns in a group displayed a
+correlation above 90\%, the most similar column of a group was kept, which should
+represent a group best. The resulting features and their correlations can be seen on the right heatmap
+in Figure~\ref{fig:heatmaps_tils}.
+\begin{figure}[h!]
+\includegraphics[width=.5\linewidth]{figures/survival/heatmap_tils.png}
+\includegraphics[width=.5\linewidth]{figures/survival/heatmap_tils_min.png}
+\caption{Heatmaps representing pair-wise Pearson correlation between TILs densities in different areas.
+Full version and condensed to group representatives.}
+\label{fig:heatmaps_tils}
+\end{figure}
+For further comparison, features were evaluated at different prevalences.
+For every feature, the patients were sorted descending according to a current feature.
+For every prevalence in the range of 0.2 until 0.9, the patients were separated into
+according groups and the Kaplan Meier method was used on both of them. The Log-Rank test
+was applied to measure whether the two resulting event series are statistically different.
+The resulting p-values are visualized in Figure~\ref{fig:pvalues_tils}, both as a line plot
+per each prevalence, as well as a boxplot. In the boxplot, it can be seen that the median
+p-value of the density in 100 \textmu m tumor associated stroma and in 10 \textmu m tumor
+border lay higher than the other features. Those densities are also found more frequently
+over the statistical significance line in the line plot. Those features were decided to exclude.
+And for visibility, the remaining features were plotted again separately in
+Figure~\ref{fig:pvalues_tils_selected} with an additional boxplot depicting differences in median
+survival time at the same prevalence range. TILs density in tumor associated stroma achieving
+lower p-values in the lower prevalences. But TILs density in stroma border shows a better
+performance overall. It is also a feature that stays under the significance line across
+all prevalences. Additionally, according to the Median survival time boxplot,
+the median value of TILs densities in stroma border is 1.5 years higher.
+
+By fitting the data into a Cox model, the TILs densities were divided by 100.
+The result revealed 0.58 concordance, 0.01 p-value, and 0.94 hazard ratio.
+That means that the coefficient is negative (-0.06) which supports the assumption
+that the high level of TILs plays a role in longer survival probability.
+For the TILs density in stroma border, the result is identical: 0.58 concordance,
+0.01 p-value, and 0.94 hazard ratio. And TILs density in tumor associated stroma
+reaches 0.59 concordance, 0.01 p-value, and 0.88 hazard ratio.
+Regression models generally give more reliable results with normally-distributed variables.
+Since the TILs densities are not normally-distributed (see Figure~\ref{fig:histo_tils}),
+the experiments were repeated with log features. The TILs densities in stroma scored
+0.58 concordance, p-value 0.00064 and 0.8 hazard ratio, for TILs desnities in stroma border - 0.58
+concordance, p-value 0.00034 and 0.79 hazard ratio, and TILs densities in tumor
+associated stroma - concordance of 0.59, p-value 0.00019 and 0.78 hazard ratio.
+It was expected for concordance to stay indifferent since did not influence it by
+taking the log of all values. Whereas p-values and hazard ratios improved drastically.
+It is harder to explain the signal presence and meaning of log-ed features,
+hence we will concentrate on raw values.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.4\linewidth]{figures/survival/histo_tils.png}
+\includegraphics[width=0.4\linewidth]{figures/survival/histo_tils_log.png}
+\caption{Histograms of baseline TILs density in stroma features versus its log distribution.}
+\label{fig:histo_tils}
+\end{figure}
+    
+
+The Kaplan Meier curves in Figure~\ref{fig:km} at most often viewed prevalences of
+0.33, 0.66, and the median matched the cases when TILs density in tumor associated
+stroma features stratified patients better in lower range and median.
+Whereas at 0.66 the TILs density in stroma border scores a slightly more significant p-value.
+
+All in all, it is not trivial to decide which feature is better and more reliable.
+It is clear though, that TIL density related features carry a signal in the TCGA-BRCA dataset.
+
+
+
+\begin{figure}[h!]
+\includegraphics[width=\linewidth]{figures/survival/pvalue_prevalence_all.png}
+\includegraphics[width=0.764\linewidth]{figures/survival/pvalue_boxplot_all.png}
+\caption{Log-Rank p-values distribution by different patient separations.
+The dotted line in the line plot represents the significance level of 0.05 ($\log_{10} 0.05$)}
+\label{fig:pvalues_tils}
+\end{figure}
+
+\begin{figure}[h!]
+\includegraphics[width=\linewidth]{figures/survival/pvalue_prevalence_selected.png}
+\includegraphics[width=0.5\linewidth]{figures/survival/pvalue_boxplot_selected.png}
+\includegraphics[width=0.5\linewidth]{figures/survival/surv_time_boxplot_selected.png}
+\caption{Log-Rank p-values distribution by different patient separations with an additional boxplot
+with median survival time differences. The dotted line in the line plot represents the significance level of 0.05 ($\log_{10} 0.05$)}
+\label{fig:pvalues_tils_selected}
+\end{figure}
+
+\begin{figure}[h!]
+\includegraphics[width=\linewidth]{figures/survival/km_33.png}
+\includegraphics[width=\linewidth]{figures/survival/km_50.png}
+\includegraphics[width=\linewidth]{figures/survival/km_66.png}
+\caption{Kaplan Meier curves. Columns correspond to denisty features in: stroma, 300 \textmu m stroma border,
+100 \textmu m tumor associated stroma border. Rows coorespond to following prevalences: 0.33, 0.5, and 0.66.}
+\label{fig:km}
+\end{figure}
+
+%\begin{figure}[h!]
+%\includegraphics[width=0.5\linewidth]{figures/survival/boxplot_sep.png}
+%\caption{Value separation}
+%\label{fig:v_sep}
+%\end{figure}

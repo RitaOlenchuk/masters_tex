@@ -41,7 +41,7 @@
 \usepackage{tablefootnote} % for footnotes in tables as \tablefootnote
 \usepackage{threeparttable} % another way to add footnotes as \tablenotes with \item [x] <your footnote> after setting \tnote{x} 
 \usepackage{wrapfig}
-
+\usepackage[colorinlistoftodos,prependcaption]{todonotes}
 
 % https://tex.stackexchange.com/questions/42619/x-mark-to-match-checkmark
 \usepackage{amssymb}% http://ctan.org/pkg/amssymb
@@ -139,7 +139,7 @@ ex-am-ple
 %\newcommand{\todo}[1]{\textbf{\textsc{\textcolor{TUMAccentOrange}{(TODO: #1)}}}} % for one paragraph, otherwise error!
 %\newcommand{\done}[1]{\textit{\textsc{\textcolor{TUMAccentBlue}{(Done: #1)}}}} % for one paragraph, otherwise error!
 % and
-\newcommand{\todo}[1]{{\bfseries{\scshape{\color{TUMAccentOrange}[(TODO: #1)]}}}} % for multiple paragraphs
+%\newcommand{\todo}[1]{{\bfseries{\scshape{\color{TUMAccentOrange}[(TODO: #1)]}}}} % for multiple paragraphs
 \newcommand{\done}[1]{{\itshape{\scshape{\color{TUMAccentBlue}[(Done: #1)]}}}} % for multiple paragraphs
 % for error handling of intended behavior in your latex documents.
 
