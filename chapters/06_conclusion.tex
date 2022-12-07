@@ -25,17 +25,17 @@ detection. The TILs score was calculated by dividing the total predicted TILs ar
 area and multiplying by 100. The score was further constrained to be an integer between 0 and 100.
 The resulting TILs scores got the highest concordance of 0.719 for predicting survival as part of
 a Cox proportional hazards model. Right now any of the results in this paper or any future papers
-of the TiGER challenge can be compared to the results in this thesis, due to the arrangement of the
+of the TiGER challenge can be compared to the results in this thesis. Due to the arrangement of the
 challenge, the reported results are based on hidden test set and internal clincal data.
 As long as the submission server is closed, those models and ideas need to be reimplemented.
 Besides benchmarking, those challenge entries can provide valuable ideas for improvements to the current pipeline.
 Such as applying transfer-learning, by using this model with pre-trained weights from ImageNet for tissue
 segmentation or an on-the-fly under-sampling approach to alleviate class imbalance of TILs segmentation task.
-There are also some similarities in approaches such as, similarly to this thesis, the authors~\cite{shephard2022tiager}
-viewed TILs detection problem as TILs segmentation, but additionally, stain augmentation was applied. Even though the
+There are also some parallels in approaches such as, similarly to this thesis, the authors~\cite{shephard2022tiager}
+viewed TILs detection problem as TILs segmentation, but additionally, applied stain augmentation. Even though the
 importance of the stain addition could be
-suspected from the tissue segmentation results, this is one of the valuable experiments that can be further performed.
+suspected from the tissue segmentation results, this is a valuable experiment that should be performed.
 All in all, this thesis also provides a better understanding and test possibilities for TILs features development.
 Instead of blindly submitting a value, adapting the TCGA-BRCA data set enables it to actually view the data specifics
-which could have helped the participants if the challenge (applicable if of course TCGA-BRCA data is not included in
-the hidden clinical data of the data set).
+which could have helped the participants of the challenge (applicable if of course TCGA-BRCA data is not included in
+the hidden clinical data).

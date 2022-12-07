@@ -1,8 +1,10 @@
 \chapter{\abstractname}
 
-%TODO: Abstract
+Breast cancer is the most common type of cancer worldwide.
+The quantification of mononuclear immune cells that infiltrate tumor tissue, named tumor-infiltrating lymphocytes (TILs) has been shown to
+be a clinically useful biomarker and essential in breast cancer progression. TILs analysis is typically performed by pathologists that estimate the proportion of TILs in critical areas.
 
-
+This thesis aimed to show that TILs evaluation can be automated with deep learning based techniques and therefore developed a pipeline that segments tissue relevant for TILs score, such as stromal and tumorous regions, and detects TILs. The tissue segmentation model scored 0.85 dice score on the test set with DeepLabv3+ and TILs detection was approached as segmentation with a novel for computational pathology transformer based architecture - SegFormer, that scored 0.66 F1-score on the test set. The resulting methods applied to TCGA-BRCA clinical data revealed the ability of TILs densities in various stroma related regions to successfully stratify the patients and as part of a Cox proportional hazards model achieved concordance of 0.59, p-value 0.00019 and 0.78 hazard ratio, that supports the assumption that the high level of TILs plays a role in prolonged survival probability and it can be used as a predictor for prognosis of breast cancer patients.
 
 
 
@@ -15,7 +17,28 @@
 \chapter{\abstractname}
 
 %TODO: Abstract in other language
-\begin{otherlanguage}{ngerman} % TODO: select other language, either ngerman or english !
+\begin{otherlanguage}{ngerman} 
+Brustkrebs ist weltweit die häufigste Krebsart.
+Die Quantifizierung mononukleärer Immunzellen, die das Tumorgewebe infiltrieren
+und als tumorinfiltrierende Lymphozyten (TILs) bezeichnet werden, hat sich als
+klinisch nützlicher Biomarker erwiesen, der für das Fortschreiten von Brustkrebs entscheidend ist.
+Die Analyse der TILs wird in der Regel von Pathologen durchgeführt, die den Anteil der
+TILs in kritischen Bereichen schätzen.
+
+In dieser Arbeit sollte gezeigt werden, dass die Bewertung von TILs mit Hilfe von
+Deep Learning Techniken automatisiert werden kann. Dazu wurde eine Pipeline entwickelt,
+die Gewebe, die für die TILs-Bewertung relevant sind, wie stromale und tumoröse Regionen,
+segmentiert und TILs erkennt. Das Gewebesegmentierungsmodell erzielte mit DeepLabv3+ eine
+Dice Wertung von 0.85 und die TILs-Erkennung wurde als Segmentierung mit einer für die
+computergestützte Pathologie neuartigen, Trasnformer Architektur - SegFormer - durchgeführt,
+die eine F1-Punktzahl von 0,66 auf dem Testset erzielte. Die resultierenden Methoden,
+die auf die klinischen TCGA-BRCA-Daten angewandt wurden, zeigten die Fähigkeit der
+TILs-Dichte in verschiedenen stromabezogenen Regionen, die Patienten erfolgreich zu
+stratifizieren, und erreichten als Teil eines Cox Proportional Hazards Modells eine
+Konkordanz von 0.59, einen p-Wert von 0.00019 und eine Hazard Ratio von 0.78, was die
+Annahme stützt, dass das hohe Niveau von TILs eine Rolle bei der verlängerten
+Überlebenswahrscheinlichkeit spielt und als Prädiktor für die Prognose von
+Brustkrebspatientinnen verwendet werden kann.
 
 \end{otherlanguage}
 
