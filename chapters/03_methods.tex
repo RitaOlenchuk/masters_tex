@@ -11,7 +11,7 @@ The atrous convolution is used in the last few blocks on features that were extr
 \begin{wrapfigure}{r}{0.5\textwidth}
   \centering
   \includegraphics[width=0.5\textwidth]{figures/conv_aspp.png} %choose your uploaded image from folder "Images"
-  \caption{(a) Atrous convolution, (b) ASPP augmented with Image Pooling (or Image-level features) ~\cite{chen2017rethinking}} %figure caption
+  \caption{(a) Atrous convolution, (b) ASPP augmented with Image Pooling (or Image-level features). Figure taken from~\cite{chen2017rethinking}} %figure caption
   \label{fig:aconv} %labelling for internal reference
 \end{wrapfigure}
 One of the latest models in this family, DeepLabv3~\cite{chen2017rethinking}, applies several parallel atrous convolutions with different atrous rates
@@ -24,10 +24,10 @@ increasing the size of the filtering kernel, therefore no increase in the comput
 The reproduction of shape contours during semantic image segmentation remained difficult with DeepLabv3~\cite{chen2018encoder}.
 DeepLabv3 bilinearly upsamples the logits both during training and evaluation (Fig.~\ref*{fig:deeplab} a), hence
 the improvements were made to employ the encoder-decoder structure (Figure~\ref*{fig:deeplab}) to avoid using a naive decoder.
-\begin{figure}[h] %h=here; t=top; b=bottom of the page
+\begin{figure}[H] %h=here; t=top; b=bottom of the page
   \centering
   \includegraphics[width=0.9\textwidth]{figures/deeplab_encoderdecoder.png} %choose your uploaded image from folder "Images"
-  \caption{The spatial pyramid pooling module of DeepLabv3 (a), the encoder-decoder structure (b) and DeepLabv3+ adaptation (c) \cite{chen2018encoder}} %figure caption
+  \caption{The spatial pyramid pooling module of DeepLabv3 (a), the encoder-decoder structure (b) and DeepLabv3+ adaptation (c). Figure taken from~\cite{chen2018encoder}} %figure caption
   \label{fig:deeplab} %labelling for internal reference
 \end{figure} 
 DeepLabv3+~\cite{chen2018encoder} adds the decoder module on top of the encoder output, as shown in Fig.~\ref*{fig:deeplabv3plus}.
@@ -36,10 +36,10 @@ low-level feature map from the encoder module which is then concatenated with th
 DeepLabv3 feature map and the 3$\times$3 convolution obtains sharper segmentation results.
 As a result, DeepLabv3+ holds rich semantic information from the encoder module,
 while the detailed object boundaries are recovered by the decoder module and the spatial information is retrieved.
-\begin{figure}[h] %h=here; t=top; b=bottom of the page
+\begin{figure}[H] %h=here; t=top; b=bottom of the page
   \centering
   \includegraphics[width=0.9\textwidth]{figures/deeplabv3plus.png} %choose your uploaded image from folder "Images"
-  \caption{DeepLabv3+ architecture. DeepLabv3 as encoder and proposed decoder structure for semantic image segmentation. \cite{chen2018encoder}} %figure caption
+  \caption{DeepLabv3+ architecture. DeepLabv3 as encoder and proposed decoder structure for semantic image segmentation. Figure taken from~\cite{chen2018encoder}} %figure caption
   \label{fig:deeplabv3plus} %labelling for internal reference
 \end{figure} 
 
@@ -52,7 +52,7 @@ it does not imply any Recurrent Networks.
 \begin{wrapfigure}{r}{0.45\textwidth}
   \centering
   \includegraphics[width=0.4\textwidth]{figures/03_transformer_overview.png}
-  \caption{Transformer model architecture. \cite{vaswani2017attention}}
+  \caption{Transformer model architecture. Figure taken from~\cite{vaswani2017attention}}
   \label{fig:trans_arch}
 \end{wrapfigure}
 The input and output are first embedded into an $n$-dimensional space.
@@ -94,7 +94,7 @@ This allows the system to learn from different representations of $Q$, $K$, and 
 \begin{figure}[h] %h=here; t=top; b=bottom of the page
     \centering
     \includegraphics[width=0.7\textwidth]{figures/03_blocks_overview.png} %choose your uploaded image from folder "Images"
-    \caption{Scaled Dot-Product Attention (left). Multi-Head Attention consists of several attention layers running in parallel (right). \cite{vaswani2017attention}} %figure caption
+    \caption{Scaled Dot-Product Attention (left). Multi-Head Attention consists of several attention layers running in parallel (right). Figure taken from~\cite{vaswani2017attention}} %figure caption
     \label{fig:trans_attn} %labelling for internal reference
 \end{figure} 
 
@@ -113,7 +113,7 @@ SegFormer~\cite{xie2021segformer} is a positional-encoding-free transformer base
 \begin{figure}[h] %h=here; t=top; b=bottom of the page
     \centering
     \includegraphics[height=60mm]{figures/03_segformer_overview.png} %choose your uploaded image from folder "Images"
-    \caption{SegFormer consists of two main modules: A hierarchical Transformer encoder to extract coarse and fine features; and a lightweight All-MLP decoder to directly fuse these multi-level features and predict the semantic segmentation mask. “FFN” indicates feed-forward network. (modified image \cite{xie2021segformer} according to the official implementation)} %figure caption
+    \caption{SegFormer consists of two main modules: A hierarchical Transformer encoder to extract coarse and fine features; and a lightweight All-MLP decoder to directly fuse these multi-level features and predict the semantic segmentation mask. “FFN” indicates feed-forward network. (modified Figure from~\cite{xie2021segformer} according to the official implementation)} %figure caption
     \label{fig:segformer_over} %labelling for internal reference
 \end{figure} 
 

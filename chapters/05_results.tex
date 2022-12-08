@@ -347,9 +347,9 @@ inference of non-background pixels was then performed.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.97\textwidth]{figures/tils/TCGA-D8-A142-01Z-00-DX12_2.png}
+    \includegraphics[width=0.95\textwidth]{figures/tils/TCGA-D8-A142-01Z-00-DX12.png}
     \caption{TCGA-D8-A142-01Z-00-DX12 TILs prediction with DeepLabv3+, SegFormer and
-    SegFormer, AdamW. With 0.774, 0.842 and 0.872 F1 scores accordingly.}
+    SegFormer, AdamW. With 0.713, 0.804 and 0.812 F1 scores accordingly.}
     \label{fig:TCGA-D8-A142_tils}
 \end{figure}
 
@@ -450,9 +450,6 @@ segmented, acts as a filtering of falsely annotated regions that therefore leads
 significance of a feature.
 
 \todo[inline]{When the final results are done, here same analysis of Her2+, TNBC subsets.}
-
-All in all, it is not trivial to decide which feature is better and more reliable.
-It is clear though, that TIL density related features carry a signal in the TCGA-BRCA dataset.
 
 \begin{figure}[h!]
 \includegraphics[width=\linewidth]{figures/survival/pvalue_prevalence_all.png}
