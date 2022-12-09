@@ -116,12 +116,34 @@ zero across all models. Due to the nature of the Dice score, those can be origin
 significant numbers of either false positives, false negatives, or both.
 According to the boxplots of precision and recall in Figure~\ref*{fig:tissue_pr_r_boxplots}
 the precision across all models has more close zero values that indicate more frequent
-false positives. There are clear examples, such as Figure~\ref*{fig:TC_S01_P000159},
+false positives. 
+There are clear examples, such as Figure~\ref*{fig:TC_S01_P000159},
 where the ground truth includes exclusively rest but all trained models provide multiple class predicitons.
 Even though there are also opposite examples of regions that were solely annotated as rest and predicted as
-such (which then lead to occasional dice, precision, and recall equal to one),
-the issue of false positives, in this case, might be solved only by finding a
-better dataset split. 
+such (which then lead to occasional dice, precision, and recall equal to one, see Figure~\ref*{fig:tissue_dice_boxplots}
+and~\ref*{fig:tissue_pr_r_boxplots}), the issue of false positives needed to be further explored.
+
+Out of the original 81 RUMC ROIs, 14\% of ROIs carry the annotation of only class label 7 - rest.
+According to the organizers, that class contains regions of several tissue compartments that are not
+specifically annotated in the other categories, such as healthy stroma, erythrocytes, adipose tissue,
+skin, nipple, etc. There are none of such annotations in TCGA-BRCA or JB datasets.
+After forming new masks with only three classes, the number of RUMC ROIs annotated completely as rest grew
+to 17\% due to an additional ROI that represented only necrosis not in-situ.
+Even though the number of all-rest-ROIs in the new TCGA-BRCA is 0.2\% and even 22\% in JB, RUMC ROIs
+originally annotated as rest (label 7) need to be minded.
+Those ROIs may not be the consequence of a bad annotation, but in future experiments,
+it should be addressed by assigning them a reduced sampling rate, lower weights or excluding those completely. 
+
+The patch size and the sampling stride define the overlap between consecutively extracted
+patches from the WSI or ROI image. The stitching of the segmented patches introduced tiling artifacts
+visible in Figure~\ref*{fig:TC_S01_P000159} and~\ref*{fig:TCGA-GM-A2DF}.
+The reason might be an overfitting problem due to small patches of 256$\times$256 and
+50\% overlap used for training and validation. Hence the problem can be tackled by
+applying less spacing during patch formation and additional augmentations.
+During inference, Khened, M et al.~\cite*{khened2021generalized} addressed a similar
+problem by increasing patch size by a factor of 4 (from 256$\times$256 to 1024$\times$1024)
+and keeping 50\% overlap. Due to time constraints and difficulties in migrating transformer based
+models to accept generalized input, this experiment was not further pursued.
 
 A close look at the prediction also revealed that at some cases dice scores might suffer due to some inaccuracies
 in the annotations. Figure~\ref*{fig:TCGA-GM-A2DF} showcases that all models were
