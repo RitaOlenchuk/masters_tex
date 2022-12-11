@@ -173,10 +173,10 @@ The final TiGER best result was achieved by a segmentation model that used
 UperNet~\cite{xiao2018unified} with visual attention network~\cite{guo2022visual}
 as the backbone, hence there are some parallels to both of the trained models:
 use of hierarchical representation and attention.
-Due to different class definitions (current tumor class includes extra in-situ tumor,
-see Table~\ref{tab:label_data}) and the TiGER results are based on an experimental
-set of 26 WSIs and a final test of 38 WSIs, hence different amounts and sources of
-test data, the results in Table~\ref{tab:tissue_compare} can not be compared.
+The TiGER challenge results are based on an experimental set of 26 WSIs
+and a final test of 38 WSIs and different class definitions (current tumor
+class includes extra in-situ tumor, see Table~\ref{tab:label_data}),
+the results in Table~\ref{tab:tissue_compare} can not be directly compared.
 It prohibits making the statement that trained models in this work outperform the models
 developed within the TiGER challenge, but their results make them promising for
 further experiments to acquire real comparison.
@@ -211,7 +211,7 @@ choice is also seen in the presented experiments of SegFromer with Adam and Adam
 Adam and AdamW were selected according to literature reporting that these adaptive gradient
 methods do not underperform momentum or gradient descent optimisers~\cite{choi2019empirical}.
 The evidence that AdamW is a better choice, agrees with the prior works that use AdamW to
-optimize ViT models from random initialization~\cite{xiao2021early}. Generally using AdamW
+optimize visual transformer models from random initialization~\cite{xiao2021early}. Generally using AdamW
 to optimize deep transformers is extensively practiced in the community~\cite{anonymous2023applying}.
 
 Due to time constraints, there were no further experiments to improve the performance of transformer
@@ -420,11 +420,10 @@ Free Response Operating Characteristic (FROC) analysis, computing sensitivity
 versus average false positives per mm$^2$ over all test slides.
 The experimental set included 26 WSIs and 38 WSIs in the final dataset.
 The FROC ratio for three developed models was calculated on 173 test ROIs
-since there was no possibility to submit the models to the server, nor access
-the challenge's test data. The results can be viewed in Table~\ref{tab:tils_compare}.
-The FROC analysis revealed huge differences between the trained model in the thesis.
+and revealed significant differences between the trained model in the thesis.
+The results can be viewed in Table~\ref{tab:tils_compare}.
 Even though the values are not directly comparable, since they are based on different
-data sets. SegFormer, AdamW yield a FROC value close to 0.7, which lies in a higher
+data sets, SegFormer, AdamW yield a FROC value close to 0.7, which lies in a higher
 range compared to TiGER results.
 Both the experimental and final TiGER best models belong to the Bio-totem team.
 They based the model on a modified SFCN-OPI network~\cite{zhou2018sfcn} which
