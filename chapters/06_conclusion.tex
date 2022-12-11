@@ -12,7 +12,7 @@ analyzing exclusively this publically available dataset.
 As an outlook, one of the main missing prospects of this work is the absence of
 benchmarking with the existing challenge entries. Due to the late start of this
 work the submission portal was closed by the time the models were present. 
-The TiGER challenge team that achieved the highest rank on the preliminary leaderboards
+The TiGER challenge team that achieved the overall highest rank on the preliminary leaderboards
 for both segmentation of tissue and TILs published their approach before the challenge ended.
 The authors~\cite{shephard2022tiager} trained Efficient-UNet-B0 for both tasks using Jaccard loss.
 The model was trained via a stratified 5-fold
@@ -20,22 +20,56 @@ cross-validation framework with 512$\times$512 patches at 10$\times$ magnificati
 with a stride of 256 pixels. Whereas for TILs segmentation,
 the patches of 128$\times$128 were extracted at 20$\times$ magnification, with a stride of 100 pixels.
 The selected model with the best F1-score across each experiment on 5-fold cross-validation achieved
-a dice score of 0.762 for tumor segmentation, 0.718 for stroma segmentation, and  0.702 for TILs
-detection. The TILs score was calculated by dividing the total predicted TILs area by the stromal
-area and multiplying by 100. The score was further constrained to be an integer between 0 and 100.
-The resulting TILs scores got the highest concordance of 0.719 for predicting survival as part of
-a Cox proportional hazards model. Right now any of the results in this paper or any future papers
+a dice score of 0.762 for tumor segmentation, 0.718 for stroma segmentation, and 0.702 for TILs
+detection. Right now any of the results in this paper or any future papers
 of the TiGER challenge can be compared to the results in this thesis. Due to the arrangement of the
 challenge, the reported results are based on hidden test set and internal clincal data.
+But DeepLabv3+ tissue segmentation model managed to score
+0.851 for tumor segmentation, 0.88 for stroma segmentation, and transformer based model SegFormer
+score slightly lower F1-score of 0.66. The final results on the challenge portal are summarized in
+Table~\ref{tab:compare_paper}.
+\begin{table}[H]
+    \centering
+    \begin{tabular}{ l c c c c c }
+        \hline
+         & \multirow{2}{*}{DeepLabv3+} & \multirow{2}{*}{SegFormer} & SegFormer, & & TIAger\\
+         &  &  & AdamW & & paper~\cite{shephard2022tiager}\\
+        \hline
+        Tissue segmentation, & \multirow{2}{*}{0.866} & \multirow{2}{*}{0.851} & \multirow{2}{*}{0.864} & & \multirow{2}{*}{0.791} \\
+        Dice score &  &  &  & &  \\
+        TILs detection, & \multirow{2}{*}{0.432} & \multirow{2}{*}{0.326} & \multirow{2}{*}{0.693} & & \multirow{2}{*}{0.572}\\
+        FROC score &  &  &  & &  \\
+        Survival abalysis, & \multirow{2}{*}{x} &  & \multirow{2}{*}{x} & & \multirow{2}{*}{0.719}\\
+        C-index &  &  &  & &  \\
+        \hline
+    \end{tabular}
+\caption{\label{tab:compare_paper} Tumor-stroma dice score for tissue segmentation,
+Free Response Operating Characteristic (FROC)
+analysis for TILs detection and concordance (C-index) for predicting survival as part
+of a Cox proportional hazards model. The TIAger oublication~\cite{shephard2022tiager} results versus three
+models developed in this work. The results were obtained from different data.}
+\end{table}
+As for the survival analysis, the TILs score was calculated by dividing the total predicted
+TILs area by the stromal area and multiplying by 100. The score was further constrained to be
+an integer between 0 and 100.
+The C-index of a baseline survival model with clinical variables that included age, morphology
+subtype, grade, molecular subtype, stage, surgery, adjuvant therapy and was evaluated as 0.63
+[CI: 0.42, 0.82]. The added TILs score feature increased the concordance to  0.719 for predicting
+survival as part of a Cox proportional hazards model. 
 As long as the submission server is closed, those models and ideas need to be reimplemented.
 Besides benchmarking, those challenge entries can provide valuable ideas for improvements to the current pipeline.
 Such as applying transfer-learning, by using this model with pre-trained weights from ImageNet for tissue
-segmentation or an on-the-fly under-sampling approach to alleviate class imbalance of TILs segmentation task.
+segmentation which sould also improve SegFormer results according to the discussion in chapter~\ref{{res_tissue_segm}}
+or an on-the-fly under-sampling approach to alleviate class imbalance of TILs segmentation task.
 There are also some parallels in approaches such as, similarly to this thesis, the authors~\cite{shephard2022tiager}
 viewed TILs detection problem as TILs segmentation, but additionally, applied stain augmentation. Even though the
 importance of the stain addition could be
 suspected from the tissue segmentation results, this is a valuable experiment that should be performed.
-All in all, this thesis also provides a better understanding and test possibilities for TILs features development.
+This thesis provides a better understanding and test possibilities for TILs features development.
 Instead of blindly submitting a value, adapting the TCGA-BRCA data set enables it to actually view the data specifics
 which could have helped the participants of the challenge (applicable if of course TCGA-BRCA data is not included in
 the hidden clinical data).
+Finally, the results depicted in Table~\ref{tab:compare_paper} showcase that the selected DeepLabv3+
+model for tissue segmentation and SegFormer for TILs detection are meritorious candidates for the
+challenge and let alone an efficient tool to gain TILs biomarker features for efficient patient
+prognosis analysis.

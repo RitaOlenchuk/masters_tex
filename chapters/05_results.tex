@@ -137,8 +137,9 @@ it should be addressed by assigning them a reduced sampling rate, lower weights 
 The patch size and the sampling stride define the overlap between consecutively extracted
 patches from the WSI or ROI image. The stitching of the segmented patches introduced tiling artifacts
 visible in Figure~\ref*{fig:TC_S01_P000159} and~\ref*{fig:TCGA-GM-A2DF}.
-The reason might be an overfitting problem due to small patches of 256$\times$256 and
-50\% overlap used for training and validation. Hence the problem can be tackled by
+Since DeepLabv3+ and transformer based networks showcase it, the reason might be an
+overfitting problem due to small patches of 256$\times$256 and 50\% overlap used for training and validation.
+Hence the problem can be tackled by
 applying less spacing during patch formation and additional augmentations.
 During inference, Khened, M et al.~\cite*{khened2021generalized} addressed a similar
 problem by increasing patch size by a factor of 4 (from 256$\times$256 to 1024$\times$1024)
@@ -160,9 +161,65 @@ tumorous region in the upper left corner (around (250, 200), which is not annota
 truth but visually highly similar to the tumor regions in this example). To decide whether
 this is an encouraging behavior the pathologist must be consulted, but in some cases,
 SegFromer AdamW manages to considerably outperform DeepLabv3+, as visualized in
-Figure~\ref*{fig:TCGA-EW-A1P4}. Yet while the SegFormer AdamW model remains promising, due to overall better performance and
-runtime, this thesis will use the DeepLabv3+ model for further inferences and analysis.
+Figure~\ref*{fig:TCGA-EW-A1P4}.
 
+For tissue segmentation, the TiGER challenge evaluated the Dice score for stroma,
+i.e. Tumor-associated stroma grouped with inflamed stroma versus all other classes
+and invasive tumor against all other classes (see Table~\ref{tab:label_data}). 
+The motivation for such a metric is that regions of invasive tumors and 
+tumor-associated stroma play a central role in the definition of the TILs score.
+The resulting values are registered in Table~\ref{tab:tissue_compare}. 
+The final TiGER best result was achieved by a segmentation model that used
+UperNet~\cite{xiao2018unified} with visual attention network~\cite{guo2022visual}
+as the backbone, hence there are some parallels to both of the trained models:
+use of hierarchical representation and attention.
+Due to different class definitions (current tumor class includes extra in-situ tumor,
+see Table~\ref{tab:label_data}) and the TiGER results are based on an experimental
+set of 26 WSIs and a final test of 38 WSIs, hence different amounts and sources of
+test data, the results in Table~\ref{tab:tissue_compare} can not be compared.
+It prohibits making the statement that trained models in this work outperform the models
+developed within the TiGER challenge, but their results make them promising for
+further experiments to acquire real comparison.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{ l c c c c c c }
+        \hline
+         & \multirow{2}{*}{DeepLabv3+} & \multirow{2}{*}{SegFormer} & SegFormer, & & TiGER best & TiGER best\\
+         &  &  & AdamW & & (experimental) & (final)\\
+        \hline
+        Dice score & 0.866 & 0.851 & 0.864 & & 0.794 & 0.812 \\
+        \hline
+    \end{tabular}
+\caption{\label{tab:tissue_compare} Dice score for stroma compared between the TiGER challenge leaderboard
+results versus three models developed in this work. The results were obtained from different data.}
+\end{table}
+
+The observation of similar performance between the developed methods complies with the literature. 
+As Dosovitskiy, A et al.~\cite*{dosovitskiy2020image} witnessed, transformer based models yield
+modest accuracies of a few percentage points below ResNets of comparable size. It is claimed
+that this outcome is expected, since Transformers lack some of the inductive biases
+inherent to CNNs, such as translation equivariance and locality, and therefore do not generalize
+well when trained on insufficient amounts of data. Liu, Y at al.~\cite{liu2021efficient} came to
+a similar conclusion and showed that the performance of visual transformers largely varies when
+trained with small and medium datasets. A typical fine-tuning scenario that results in major
+improvements in the performance is pre-training the model on a big dataset (e.g., ImageNet) which
+is also done in SegFromer paper~\cite*{xie2021segformer} and repeated strong data augmentations~\cite{touvron2021training}.
+An alternative is the use of a principled optimizer to avoid excessive demands of data,
+computing, and hyperparameters tuning~\cite*{chen2021vision}.The importance of the optimizer
+choice is also seen in the presented experiments of SegFromer with Adam and AdamW optimizers.
+Adam and AdamW were selected according to literature reporting that these adaptive gradient
+methods do not underperform momentum or gradient descent optimisers~\cite{choi2019empirical}.
+The evidence that AdamW is a better choice, agrees with the prior works that use AdamW to
+optimize ViT models from random initialization~\cite{xiao2021early}. Generally using AdamW
+to optimize deep transformers is extensively practiced in the community~\cite{anonymous2023applying},
+posiibly because AdamW yields models that generalize better.
+
+Due to time constraints, there were no further experiments to improve the performance of transformer
+based models, which could involve the previously noticed pre-training on ImageNet, increasing
+the number of argumentations, or applying different optimizers.
+Hence, while the SegFormer AdamW model remains promising, due to overall better performance and
+runtime, this thesis will use the DeepLabv3+ model for further inferences and analysis.
 For model inference, the model with the best pixel-wise Dice score on the validation set was used.
 Patches of size 256$×\times$256 were extracted from the tissue region at 20$\times$ magnification
 with a stride of 184 (for faster runtime). The whitespace was extracted by using thresholding and
@@ -345,10 +402,7 @@ how the posteriors are simplified into point segmentations and later the misted,
 falsely annotated and correct TILs can be compared. Even on the level of posteriors
 (overlayed with H\&E image), it is visible that SegFormer AdamW manages to detect
 more regions, especially closer to the border of the image. The grids in Figure~\ref*{fig:TCGA-D8-A142_tils}
-were added for readers' convenience and are not artifacts. Taking into account all
-discussions above and the overall better performance, the SegFromer AdamW was
-considered the best model, and the model with the highest pixel-wise dice score
-on the validation set was taken to the next step. 
+were added for readers' convenience and are not artifacts. 
 
 \begin{figure}[H]
     \includegraphics[width=.32\linewidth]{figures/tils/deeplabv3+_precision_roi_adj.png}
@@ -362,6 +416,56 @@ on the validation set was taken to the next step.
     \label{fig:tils_pr_r_boxplots}
 \end{figure}
 
+To evaluate the results of TILs detection TiGER challenge performed a
+Free Response Operating Characteristic (FROC) analysis, computing sensitivity
+versus average false positives per mm$^2$ over all test slides.
+The experimental set included 26 WSIs and 38 WSIs in the final dataset.
+The FROC ratio for three developed models was calculated on 173 test ROIs
+since there was no possibility to submit the models to the server, nor access
+the challenge's test data. The results can be viewed in Table~\ref{tab:tils_compare}.
+The FROC analysis revealed huge differences between the trained model in the thesis.
+Even though the values are not directly comparable, since they are based on different
+data sets. SegFormer, AdamW yield a FROC value close to 0.7, which lies in a higher
+range compared to TiGER results.
+Both the experimental and final TiGER best models belong to the Bio-totem team.
+They based the model on a modified SFCN-OPI network~\cite{zhou2018sfcn} which
+is a sibling fully convolutional network that performs nuclei detection and
+classification using weak labels.  The resulting SFCN-OPI first contains a
+detection FCN branch, then the regions with high confidence of TILs
+existence from detection output are gathered with thresholding (objectness prior)
+and fed into the false positive suppressing branch for the TILs detection task. 
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{ l c c c c c c }
+        \hline
+         & \multirow{2}{*}{DeepLabv3+} & \multirow{2}{*}{SegFormer} & SegFormer, & & TiGER best & TiGER best\\
+         &  &  & AdamW & & (experimental) & (final)\\
+        \hline
+        FROC score & 0.432 & 0.326 & 0.693 & & 0.600 & 0.5504 \\
+        \hline
+    \end{tabular}
+\caption{\label{tab:tils_compare} Free Response Operating Characteristic (FROC)
+analysis for TILs detection. The TiGER challenge leaderboard results versus three
+models developed in this work. The results were obtained from different data.}
+\end{table}
+
+Once again, just as for tissue segmentation AdamW optimizer for transformer
+based method proved to be a better choice. 
+But the statements that were done in the previous chapter~\ref{res_tissue_segm}
+regarding tissue segmentation models comparison do not apply here, since SegFormer with AdamW
+optimizer manages to outperform DeepLabv3+ even though no pre-training
+or hyperparameter tuning was used. 
+As Naseer, M et al.~\cite{naseer2021intriguing} discovered, when presented
+with the texture and shape of the same object, in this case typically dark,
+round to ovoid TIL, CNN models often make decisions based on texture. In contrast,
+transformers perform better than CNNs on shape recognition. This indicates the
+robustness of transformers to deal with significant distribution shifts and might
+be the reason for superior performance, due to for instance better recognition of
+TILs shapes in non-homogeneously stained slides. Taking into account all
+discussions above and the overall better performance, the SegFromer AdamW was
+considered the best model, and the model with the highest pixel-wise dice score
+on the validation set was taken to the next step. 
 For model inference, the model with the best pixel-wise Dice score on the validation set was used.
 Patches of size 128$×\times$128 were extracted from the tissue region at 20$\times$ magnification
 with a stride of 100. The whitespace was extracted by using thresholding and
