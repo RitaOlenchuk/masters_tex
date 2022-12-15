@@ -1,21 +1,21 @@
 \chapter{\abstractname}
 
 Breast cancer is the most common type of cancer worldwide with a high mortality rate causing millions of cancer-related deaths annually.
-Optimization of diagnostic biomarkers play important role in the improvement of breast cancer prognosis and its therapeutic outcomes.
-At present, in early-stage disease clinicopathological risk stratification
-is performed using a limited set of features such as tumor size and lymph node status, that do not stratify patients with sufficient granularity to permit selection for clinical trials. 
-The results of high-throughput technology analysis have identified transcriptomic or proteomic features which are associated with particular histological features. 
-Hence, the histological appearance of a tumor represents a useful cancer phenotype that can be further explored, and contribute to staging and stratification.
+Optimization of diagnostic biomarkers is essential to improve breast cancer prognosis and therapeutic outcomes.
+According to the International Immuno-Oncology Biomarker Working Group, early-stage disease clinicopathological risk stratification is currently performed using a limited set of features such as tumor size and lymph node status, that do not stratify patients with sufficient granularity to permit selection for clinical trials. 
+%The results of high-throughput technology analysis have identified transcriptomic or proteomic features which are associated with particular histological features. 
+%Hence, the histological appearance of a tumor represents a useful cancer phenotype that can be further explored, and contribute to staging and stratification.
 
-The quantification of mononuclear immune cells that infiltrate tumor tissue, named tumor-infiltrating lymphocytes (TILs) is a clinically useful biomarker and essential in breast cancer progression. TILs in tumors and the surrounding microenvironment are thought to reflect the ongoing anti-tumor immune response of the host.
-TILs analysis is typically performed by pathologists that estimate the proportion of TILs in critical areas.
+The quantification of mononuclear immune cells that infiltrate tumor tissue, named tumor-infiltrating lymphocytes (TILs) is a clinically useful biomarker for breast cancer progression.
+TILs in tumors and the surrounding microenvironment are thought to reflect the ongoing anti-tumor immune response of the host.
+TIL analysis is typically performed by pathologists that manually estimate the proportion of TILs in a histological appearance.
 
-The automatic assessment of TILs by computational image analysis is useful for standardization and potential use in a clinical setting.
-This thesis shows that TILs evaluation can be automated with deep learning based techniques and therefore developed a pipeline that segments tissue relevant for TILs score, such as stromal and tumorous regions, and detects TILs. The tissue segmentation model scored 0.85 dice score on the test set and TILs detection was approached as segmentation with a novel for computational pathology transformer based architecture - SegFormer, that scored 0.66 F1-score on the test set.
+The automatic assessment of TILs by computational image analysis is valuable for standardization and potential use in a clinical setting.
+This thesis shows that TIL evaluation can be automated with deep learning-based techniques. The developed pipeline segments tissue relevant for TIL score, such as stromal and tumorous regions using DeepLabv3+, and detects TILs based on the publicly released TiGER challenge data containing digital pathology images of Her2 positive and Triple Negative breast cancer whole-slide images.
+The tissue segmentation model scored 0.85 Dice score on the test set and TIL detection was approached as segmentation with a transformer-based architecture - SegFormer, which is novel for computational pathology, and scored 0.66 F1-score on the test set.
 
-Application of machine learning approaches permitted the discovery of image based features that would be demanding to identify per hand, particularly if they only exist in small groups of patients. It made it feasible not only to show the effect of TILs density in stroma but experiment with various borders of stroma, tumor associated stroma, tumor itself and define novel heterogeneity features.
-Applied to TCGA-BRCA clinical data, TILs related features demonstrated their ability to successfully stratify the patients and as part of a Cox proportional hazards model achieved concordance of 0.59, p-value 0.00019 and 0.78 hazard ratio, which supports the assumption that the high level of TILs plays a role in prolonged survival probability and it can be used as a predictor for prognosis of breast cancer patients.
-
+The application of deep learning approaches permitted the discovery of image-based features that would be demanding to identify per hand, particularly if they only exist in small groups of patients. It made it feasible not only to show the effect of TIL density in stroma but experiment with various borders of stroma, tumor-associated stroma, and tumor, as well as novel heterogeneity features.
+Applied to TCGA-BRCA clinical data, TIL features demonstrated their ability to successfully stratify the patients into groups of high and low TIL density. In Cox proportional hazards model TIL density in tumor associated stroma border of 100 \textmu m achieved concordance of 0.59, p-value 0.00018, and 0.78 hazard ratio, supporting the assumption that the high level of TILs plays a role in prolonged survival probability and therefore can be used as a prognostic marker for breast cancer patients.
 
 
 \makeatletter
@@ -28,49 +28,22 @@ Applied to TCGA-BRCA clinical data, TILs related features demonstrated their abi
 
 %TODO: Abstract in other language
 \begin{otherlanguage}{ngerman} 
-Brustkrebs ist weltweit die häufigste Krebsart mit einer hohen Sterblichkeitsrate,
-die jährlich Millionen von krebsbedingten Todesfällen verursacht.
-Die Optimierung diagnostischer Biomarker spielt eine wichtige Rolle bei der Verbesserung der
-Brustkrebsprognose und der therapeutischen Ergebnisse.
-Gegenwärtig wird die klinisch-pathologische Risikostratifizierung in frühen Krankheitsstadien
-mit einer begrenzten Anzahl von Merkmalen wie Tumorgröße und Lymphknotenstatus durchgeführt,
-die die Patientinnen nicht mit ausreichender Granularität stratifizieren, um eine Auswahl für
-klinische Studien zu ermöglichen. 
-Die Ergebnisse der technologischen Hochdurchsatzanalyse haben transkriptomische oder
-proteomische Merkmale identifiziert, die mit bestimmten histologischen Merkmalen verbunden sind. 
-Daher stellt das histologische Erscheinungsbild eines Tumors einen nützlichen Krebsphänotyp
-dar, der weiter erforscht werden und zur Stadieneinteilung und Stratifizierung beitragen kann.
+Brustkrebs ist weltweit die häufigste Krebsart mit einer hohen Sterblichkeitsrate, die jährlich Millionen von krebsbedingten Todesfällen verursacht.
+Die Optimierung diagnostischer Biomarker ist für die Verbesserung der Brustkrebsprognose und der therapeutischen Ergebnisse von essenzieller Bedeutung.
+Nach Angaben der International Immuno-Oncology Biomarker Working Group erfolgt die klinisch-pathologische Risikostratifizierung im Frühstadium der Erkrankung derzeit anhand einer begrenzten Anzahl von Merkmalen wie Tumorgröße und Lymphknotenstatus, die die Patienten nicht ausreichend genau einteilen, um eine Auswahl für klinische Studien zu ermöglichen. 
 
-Die Quantifizierung mononukleärer Immunzellen, die in das Tumorgewebe eindringen und als
-tumorinfiltrierende Lymphozyten (TILs) bezeichnet werden, ist ein klinisch nützlicher Biomarker
-und für das Fortschreiten von Brustkrebs von entscheidender Bedeutung. Es wird angenommen,
-dass TILs in Tumoren und der umgebenden Mikroumgebung die laufende Anti-Tumor-Immunreaktion
-des Wirts widerspiegeln.
-Die Analyse der TILs wird in der Regel von Pathologen durchgeführt,
-die den Anteil der TILs in kritischen Bereichen schätzen.
+Die Quantifizierung von mononukleären Immunzellen, die in das Tumorgewebe eindringen und als tumorinfiltrierende Lymphozyten (TILs) bezeichnet werden, ist ein klinisch nützlicher Biomarker für das Fortschreiten von Brustkrebs.
+Es wird angenommen, dass TILs in Tumoren und der umgebenden Mikroumgebung die laufende Anti-Tumor-Immunreaktion des Wirts widerspiegeln.
+Die TIL-Analyse wird in der Regel von Pathologen durchgeführt, die den Anteil der TILs in einem histologischen Befund manuell schätzen.
 
-Die automatische Bewertung von TILs durch computergestützte Bildanalyse ist nützlich
-für die Standardisierung und den potenziellen Einsatz im klinischen Umfeld.
-Diese Arbeit zeigt, dass die Bewertung von TILs mit Deep-Learning-Techniken automatisiert
-werden kann, und entwickelte daher eine Pipeline, die das für die TILs-Bewertung relevante Gewebe,
-wie stromale und tumoröse Regionen, segmentiert und TILs erkennt. Das Gewebesegmentierungsmodell erzielte eine
-Dice-Wert von 0.85 und die TILs-Erkennung wurde als Segmentierung mit einer für die
-computergestützte Pathologie neuartigen, Trasnformer Architektur - SegFormer - durchgeführt,
-die eine F1-Wert von 0.66 auf dem Testset erzielte.
+Die automatische Bewertung von TILs durch computergestützte Bildanalyse ist wertvoll für die Standardisierung und den potenziellen Einsatz in einem klinischen Umfeld.
+Diese Arbeit zeigt, dass die TIL-Bewertung mit Deep-Learning-basierten Techniken automatisiert werden kann. Die entwickelte Pipeline segmentiert Gewebe, das für die TIL-Bewertung relevant ist, wie z. B. stromale und tumoröse Regionen unter Verwendung von DeepLabv3+, und erkennt TILs auf der Grundlage der öffentlich veröffentlichten TiGER-Challenge-Daten, die digitale Pathologiebilder von Her2-positiven und dreifach negativen Brustkrebs-Ganzbildaufnahmen enthalten.
+Das Gewebesegmentierungsmodell erzielte 0,85 Dice-Wert in der Testreihe und die TIL-Erkennung wurde als Segmentierung mit einer transformatorbasierten Architektur - SegFormer - angegangen, die für die computergestützte Pathologie neu ist und 0,66 F1-Wert in der Testreihe erzielte.
 
-Die Anwendung von Ansätzen des maschinellen Lernens ermöglichte die Entdeckung von
-bildbasierten Merkmalen, deren Identifizierung von Hand sehr schwierig wäre,
-insbesondere wenn sie nur bei kleinen Patientengruppen vorkommen. So konnte nicht
-nur die Auswirkung der TILs-Dichte im Stroma aufgezeigt werden, sondern es konnte auch
-mit verschiedenen Grenzen des Stromas, des tumorassoziierten Stromas und des Tumors
-selbst experimentiert und neue Heterogenitätsmerkmale definiert werden.
-Bei der Anwendung auf die klinischen TCGA-BRCA-Daten zeigten die TILs-bezogenen Merkmale
-ihre Fähigkeit, die Patienten erfolgreich zu stratifizieren, und erreichten als Teil
-eines Cox-Proportional-Hazards-Modells eine Konkordanz von 0.59, einen p-Wert von 0.00019 und
-eine Hazard Ratio von 0.78, was die Annahme stützt, dass ein hohes Maß an TILs eine Rolle bei der
-verlängerten Überlebenswahrscheinlichkeit spielt und als Prädiktor für die
-Prognose von Brustkrebspatientinnen verwendet werden kann.
+Die Anwendung von Deep-Learning-Ansätzen ermöglichte die Entdeckung von bildbasierten Merkmalen, die per Hand nur schwer zu identifizieren wären, insbesondere wenn sie nur bei kleinen Patientengruppen vorkommen. Dadurch konnte nicht nur die Auswirkung der TIL-Dichte im Stroma aufgezeigt, sondern auch mit verschiedenen Grenzen des Stromas, tumorassoziierten Stromas und Tumors sowie mit neuen Heterogenitätsmerkmalen experimentiert werden.
+Bei der Anwendung auf die klinischen Daten des TCGA-BRCA zeigten die TIL-Merkmale ihre Fähigkeit, die Patienten erfolgreich in Gruppen mit hoher und niedriger TIL-Dichte zu stratifizieren. Im Cox-Proportional-Hazards-Modell erreichte die TIL-Dichte in der tumorassoziierten Stromagrenze von 100 \textmu m eine Übereinstimmung von 0,59, einen p-Wert von 0,00018 und eine Hazard Ratio von 0,78, was die Annahme stützt, dass die hohe TIL-Dichte eine Rolle bei der verlängerten Überlebenswahrscheinlichkeit spielt und daher als prognostischer Marker für Brustkrebspatientinnen verwendet werden kann.
 
+Übersetzt mit www.DeepL.com/Translator (kostenlose Version)
 \end{otherlanguage}
 
 

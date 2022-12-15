@@ -3,11 +3,16 @@ In this thesis, a new pipeline for TILs scoring in breast cancer patients was pr
 The tasks of tissue segmentation and TILs detection for WSI were approached with DeepLabv3+
 which is actively used in computational pathology, as well as with a novel transformer-based
 approach, SegFormer. As a result, the SegFormer was found to be superior in the TILs
-segmentation task. The analysis of TCGA-BRCA slides with the resulting models, allowed
-for experiments with different TILs density based features. Several of them showed the
-ability to successfully stratify patients at multiple prevalences. This proves a strong
-signal of TILs in the TCGA-BRCA dataset, which was not previously demonstrated while
+segmentation task compared to DeepLabv3+. The analysis of TCGA-BRCA slides with the resulting models, allowed
+for experiments with different TILs density based features. 100 \textmu m tumor associated border and
+300 \textmu m stroma border showed the
+ability to successfully stratify patients into high and low TIL density groups at multiple prevalences. This proves signal exsitence
+of TILs in the TCGA-BRCA dataset, which was not previously demonstrated while
 analyzing exclusively this publically available dataset. 
+
+Undoubtedly the conversion issue for SegFormer models needs to be resolved so that TIL feature calculation can be based on
+the best-performing model. The fact that survival analysis was done based on DeepLabv3+ segmentation of tissue and TILs is
+a drawback. 
 
 As an outlook, one of the main missing prospects of this work is the absence of
 benchmarking with the existing challenge entries. Due to the late start of this
@@ -21,14 +26,16 @@ with a stride of 256 pixels. Whereas for TILs segmentation,
 the patches of 128$\times$128 were extracted at 20$\times$ magnification, with a stride of 100 pixels.
 The selected model with the best F1-score across each experiment on 5-fold cross-validation achieved
 a dice score of 0.762 for tumor segmentation, 0.718 for stroma segmentation, and 0.702 for TILs
-detection. Right now any of the results in this paper or any future papers
+detection. In the meantime any of the results in this paper or any future papers
 of the TiGER challenge can be compared to the results in this thesis. Due to the arrangement of the
 challenge, the reported results are based on hidden test set and internal clincal data.
-But DeepLabv3+ tissue segmentation model managed to score
+Despite the fact that direct comparion is not possible, validation metrics detemined for the
+approches investigated in this work suggest that performace is comparible with the challenge winner.
+DeepLabv3+ tissue segmentation model scored
 0.851 for tumor segmentation, 0.88 for stroma segmentation, and transformer based model SegFormer
 score slightly lower F1-score of 0.66. The final results on the challenge portal are summarized in
 Table~\ref{tab:compare_paper}.
-\begin{table}[H]
+\begin{table}[h!]
     \centering
     \begin{tabular}{ l c c c c c }
         \hline
@@ -39,23 +46,20 @@ Table~\ref{tab:compare_paper}.
         Dice score &  &  &  & &  \\
         TILs detection, & \multirow{2}{*}{0.432} & \multirow{2}{*}{0.326} & \multirow{2}{*}{0.693} & & \multirow{2}{*}{0.572}\\
         FROC score &  &  &  & &  \\
-        Survival abalysis, & \multirow{2}{*}{x} &  & \multirow{2}{*}{x} & & \multirow{2}{*}{0.719}\\
+        Survival abalysis, & \multirow{2}{*}{0.78} &  & & & \multirow{2}{*}{0.719}\\
         C-index &  &  &  & &  \\
         \hline
     \end{tabular}
 \caption{\label{tab:compare_paper} Tumor-stroma dice score for tissue segmentation,
 Free Response Operating Characteristic (FROC)
 analysis for TILs detection and concordance (C-index) for predicting survival as part
-of a Cox proportional hazards model. The TIAger oublication~\cite{shephard2022tiager} results versus three
+of a Cox proportional hazards model. The TIAger publication~\cite{shephard2022tiager} results versus three
 models developed in this work. The results were obtained from different data.}
 \end{table}
-As for the survival analysis, the TILs score was calculated by dividing the total predicted
-TILs area by the stromal area and multiplying by 100. The score was further constrained to be
-an integer between 0 and 100.
-The C-index of a baseline survival model with clinical variables that included age, morphology
-subtype, grade, molecular subtype, stage, surgery, adjuvant therapy and was evaluated as 0.63
-[CI: 0.42, 0.82]. The added TILs score feature increased the concordance to  0.719 for predicting
-survival as part of a Cox proportional hazards model. 
+As for the survival analysis, the C-index of a baseline survival model was evaluated as 0.63.
+The added TILs score feature increased the concordance to 0.719 for predicting
+survival as part of a Cox proportional hazards model. Within this work the Cox model
+was attempted to be defined in the same way, but the baseline alone resulted a concordance of 0.77.
 As long as the submission server is closed, those models and ideas need to be reimplemented.
 Besides benchmarking, those challenge entries can provide valuable ideas for improvements to the current pipeline.
 Such as applying transfer-learning, by using this model with pre-trained weights from ImageNet for tissue

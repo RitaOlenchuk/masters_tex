@@ -3,13 +3,12 @@
 Three models were trained to segment the RGB input of H\&E stained image at 20$\times$ magnification
 (resolution of 0.5 micron-per-pixel) into three prediction maps:
 tumor, stroma, and rest (not white space, but tissue that is neither tumor nor stroma,
-for details refer to Table~\ref*{tab:label_data}). The data was separated on the patient
-level (or slide level, since there is one slide per patient present)
-into training, validation, and test with 80\%, 10\%, and 10\% accordingly.
+for details refer to Table~\ref*{tab:label_data}). The data was separated on the patient level
+(or slide level, since there is one slide per patient present) into training, validation, and test
+with approximately 80\%, 10\%, and 10\% rates accordingly.
 In order to keep the distribution of the resulting patch numbers (see Table~\ref*{tab:patch_sep})
 and dataset sources fair, the patient separation in Table~\ref*{tab:patients_sep} was introduced.
-
-\begin{table}[h!]
+\begin{table}[H]
     \centering
     \begin{tabular}{ l c c c }
         \hline
@@ -22,14 +21,10 @@ and dataset sources fair, the patient separation in Table~\ref*{tab:patients_sep
         & 156 & 20 & 19 \\
     \end{tabular}
 \caption{\label{tab:patients_sep} Split of patients across different medical sources
-into train, validation, and test sets for segmentation tasks.}
+into train, validation, and test sets for segmentation tasks. That resulted an 80\%, 10\%, and 10\%
+split of patches for training, validation and testing, as showed in Table~\ref{tab:patch_sep}.}
 \end{table}
-
-The patches were created using a sliding window approach with 256$\times$256 sized patches
-and stride equals 128. The additional rotation augmentation was applied, by rotating each patch
-5 times at 9 degrees each.
-
-\begin{table}[h!]
+\begin{table}[H]
     \centering
     \begin{tabular}{ l c c c c c c c c c}
         \hline
@@ -49,6 +44,9 @@ and stride equals 128. The additional rotation augmentation was applied, by rota
     \caption{\label{tab:patch_sep} Overview of patches that were split into train, validation,
     and test sets for tissue segmentation. The percentages indicate the fraction of a specific conditioned group of patches to the number of all patches in the "patches" column.}
 \end{table}
+The patches were created using a sliding window approach with 256$\times$256 sized patches
+and stride equals 128. The additional rotation augmentation was applied, by rotating each patch
+5 times at 9 degrees each.
 
 The models were trained with the mmsegmentation toolbox~\cite{mmseg2020}. 
 All models were trained for 160K iterations with Cross Entropy Loss and
@@ -56,39 +54,42 @@ standard data augmentation techniques including resizing at a random sample scal
 of (0.5, 2.0), cropping with the maximum 0.75 of a single category present, flipping with 0.5 probability,
 and application of photometric distortion which includes 0.5 probability for each of the following transformations: random brightness, contrast, saturation, hue and color adjustments. 
 The DeepLabv3+ model was taken as a baseline and trained with ResNet50 backbone,
-Adam optimizer, learning rate equals 0.0001 and batch size of 64. Whereas the
+Adam optimizer, learning rate equals $10^{-4}$ and batch size of 64. Whereas the
 transformer-based SegFormer-B5 (further referred to as SegFormer) architecture was trained once with the same setup of
-Adam optimizer, 0.0001 learning rate and batch size of 64, and additionally, as 
+Adam optimizer, $10^{-4}$  learning rate and batch size of 64, and additionally, as 
 in original paper~\cite*{xie2021segformer}, using AdamW optimizer, the learning rate
-set to an initial value of 0.00006 and then used a poly learning rate schedule with
+set to an initial value of $6 \cdot 10^{-5}$  and then used a poly learning rate schedule with
 factor 1.0 by default.
 
-\begin{table}[h!]
+\begin{table}[H]
     \centering
     \begin{tabular}{ l c c c c c c c c}
         \hline
         \multirow{2}{*}{Model} & \multirow{2}{*}{FLOPs} & \multirow{2}{*}{Params} & \multirow{2}{*}{Iterations} & \multirow{2}{*}{Runtime} & \multicolumn{4}{c}{mDice}\\
         & & & & & Overall & Tumor & Stroma & Rest \\
         \hline
-        DeepLabv3+ & 44.16 & 43.58 M & 160 K & 1d 12h 2m & \textbf{85.25} & 85.13 & 88.07 & 83.66\\
+        DeepLabv3+ & 44.16 & 43.58 M & 160 K & 1d 12h 2m & 85.25 & 85.13 & 88.07 & 83.66\\
         SegFormer & 12.96 & 81.97 M & 160 K  & 3d 4h 30m & 83.44 & 83.83 & 86.32 & 80.16\\
         SegFormer, & \multirow{2}{*}{12.96} & \multirow{2}{*}{81.97 M} & \multirow{2}{*}{160 K} & \multirow{2}{*}{3d 4h 25m} & \multirow{2}{*}{84.93} & \multirow{2}{*}{85.40} & \multirow{2}{*}{87.40} & \multirow{2}{*}{82.00}\\
         AdamW & & & & & & & & \\
         \hline
     \end{tabular}
-\caption{\label{tab:tissue_perform} Overview of the trained tissue segmentation models. The runtime is given for a training on one GPU NVIDIA A100 SXM4.}
+\caption{\label{tab:tissue_perform} Overview of the trained tissue segmentation models. The runtime is given for a training on one GPU NVIDIA A100 SXM4.
+Describes comparable performance, but severe runtime difference of
+SegFormer-based methods compared to the DeepLabv3+ complemented by doubled number of parameters.}
 \end{table}
 
 \begin{figure}[H]
     \includegraphics[width=\linewidth]{figures/tissue/conf_matrices.png}
     \caption{Confusion matrices on pixel level for DeepLabv3+, SegFormer and SegFormer with AdamW optimizer
-    based on test set of 32 ROIs.}
+    based on test set of 32 ROIs. Across all models, the performance
+    is comparable but there is some tendency to misinterpret rest pixels for stroma.}
     \label{fig:tissue_confusion}
 \end{figure}
 
 During a close investigation of test data, one slide (with the prefix TCGA-OL-A5RW-01Z-00-DX1)
 was excluded from the test set due to an obvious image-mask mismatch. The overall
-performance of the models, the number of parameters, and the resulting dice score after testing on 
+performance of the models, the number of parameters, and the resulting Dice score after testing on 
 32 test images can be found in Table~\ref*{tab:tissue_perform}. The first thing that catches the eye is the severe runtime difference of
 SegFormer-based methods compared to the DeepLabv3+ accompanied by doubled number of parameters.
 None of the SegFormer approaches outperform the DeepLabv3+, but the performance
@@ -105,22 +106,27 @@ in segmenting rest regions but also for an improvement of tumor region segmentat
 model both observed in Figure~\ref*{fig:tissue_confusion}.
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{figures/tissue/dices.png}
-    \caption{Boxplots of pixel wise calculated dice score across three datastes (TCGA-BRCA, RUMC, JB) and three segmentation labels.}
+    \includegraphics[width=\linewidth]{figures/tissue/dice.png}
+    \caption{Boxplots of pixel-wise calculated Dice score across three datasets (TCGA-BRCA, RUMC, JB) and three segmentation labels.
+    Each boxplot represents the results of one model. Boxplot color helps to distinguish the Dice scores
+    between different datasets and finally, each dataset is represented by three boxes for each of the class labels - rest, tumor, and stroma. }
     \label{fig:tissue_dice_boxplots}
 \end{figure} 
 
 The additional specialty that Figure~\ref*{fig:tissue_dice_boxplots} brings to light is
-the considerable number of RUMC ROIs that have been evaluated with dice scores close to
+the considerable number of RUMC ROIs that have been evaluated with Dice scores close to
 zero across all models. Due to the nature of the Dice score, those can be originated from
-significant numbers of either false positives, false negatives, or both.
+significant numbers of either false positives, false negatives, or both. 
+Additionally, not only true positives need to be taken into account, but the false
+negatives as well, for instance in case of a low number of true TILs in the image. 
+Hence further exploration is needed.
 According to the boxplots of precision and recall in Figure~\ref*{fig:tissue_pr_r_boxplots}
 the precision across all models has more close zero values that indicate more frequent
 false positives. 
 There are clear examples, such as Figure~\ref*{fig:TC_S01_P000159},
 where the ground truth includes exclusively rest but all trained models provide multiple class predicitons.
 Even though there are also opposite examples of regions that were solely annotated as rest and predicted as
-such (which then lead to occasional dice, precision, and recall equal to one, see Figure~\ref*{fig:tissue_dice_boxplots}
+such (which then lead to occasional Dice, precision, and recall equal to one, see Figure~\ref*{fig:tissue_dice_boxplots}
 and~\ref*{fig:tissue_pr_r_boxplots}), the issue of false positives needed to be further explored.
 
 Out of the original 81 RUMC ROIs, 14\% of ROIs carry the annotation of only class label 7 - rest.
@@ -137,16 +143,16 @@ it should be addressed by assigning them a reduced sampling rate, lower weights 
 The patch size and the sampling stride define the overlap between consecutively extracted
 patches from the WSI or ROI image. The stitching of the segmented patches introduced tiling artifacts
 visible in Figure~\ref*{fig:TC_S01_P000159} and~\ref*{fig:TCGA-GM-A2DF}.
-Since DeepLabv3+ and transformer based networks showcase it, the reason might be an
-overfitting problem due to small patches of 256$\times$256 and 50\% overlap used for training and validation.
+Since DeepLabv3+ and transformer-based networks experience it, the reason is the training setup. 
+A probable reason is overfitting due to small patches of 256$\times$256 and 50\% overlap used for training and validation.
 Hence the problem can be tackled by
 applying less spacing during patch formation and additional augmentations.
-During inference, Khened, M et al.~\cite*{khened2021generalized} addressed a similar
+During inference, Khened, M \textit{et al.}~\cite*{khened2021generalized} addressed a similar
 problem by increasing patch size by a factor of 4 (from 256$\times$256 to 1024$\times$1024)
 and keeping 50\% overlap. Due to time constraints and difficulties in migrating transformer based
 models to accept generalized input, this experiment was not further pursued.
 
-A close look at the prediction also revealed that at some cases dice scores might suffer due to some inaccuracies
+A close look at the prediction also revealed that at some cases Dice scores might suffer due to some inaccuracies
 in the annotations. Figure~\ref*{fig:TCGA-GM-A2DF} showcases that all models were
 penalized for detecting a rest region inside of the tumor, which was probably learned
 with some dependency to the presence of white space, which also present in the same slide
@@ -157,14 +163,19 @@ Figure~\ref*{fig:s_250B_1} and~\ref*{fig:s_250B_2} where the performance of SegF
 is either very close or slightly better then DeepLabv3+. 
 Curiously, in Figure~\ref*{fig:s_250B_2} the SegFromer AdamW performs slightly better partly
 because this model, in contrast to the rest, did not attempt to annotate the small possibly
-tumorous region in the upper left corner (around (250, 200), which is not annotated in ground
-truth but visually highly similar to the tumor regions in this example). To decide whether
-this is an encouraging behavior the pathologist must be consulted, but in some cases,
-SegFromer AdamW manages to considerably outperform DeepLabv3+, as visualized in
+tumorous region in the upper left corner (it is not annotated in ground
+truth but visually highly similar to the tumor regions in this example).
+A further experience could be conducted by filtering out those small island
+areas that contributed to a better result in this case, and evaluating the performance
+without them.
+But due to time constraints, this experiment was not executed.
+To decide whether this is an encouraging model behavior the pathologist must be consulted,
+but in some cases of larger ROIs, SegFromer AdamW manages to outperform DeepLabv3+,
+by predicting more smooth and visually coherent prediction maps, as visualized in
 Figure~\ref*{fig:TCGA-EW-A1P4}.
 
 For tissue segmentation, the TiGER challenge evaluated the Dice score for stroma,
-i.e. Tumor-associated stroma grouped with inflamed stroma versus all other classes
+i.e. tumor-associated stroma grouped with inflamed stroma versus all other classes
 and invasive tumor against all other classes (see Table~\ref{tab:label_data}). 
 The motivation for such a metric is that regions of invasive tumors and 
 tumor-associated stroma play a central role in the definition of the TILs score.
@@ -192,11 +203,12 @@ further experiments to acquire real comparison.
         \hline
     \end{tabular}
 \caption{\label{tab:tissue_compare} Dice score for stroma compared between the TiGER challenge leaderboard
-results versus three models developed in this work. The results were obtained from different data.}
+results~\cite{home} versus three models developed in this work.
+Pixel-wise Dice score was calculated for stroma and tumor regions. The results were obtained from different data.}
 \end{table}
 
 The observation of similar performance between the developed methods complies with the literature. 
-As Dosovitskiy, A et al.~\cite*{dosovitskiy2020image} witnessed, transformer based models yield
+As Dosovitskiy, A \textit{et al.}~\cite*{dosovitskiy2020image} witnessed, transformer based models yield
 modest accuracies of a few percentage points below ResNets of comparable size. It is claimed
 that this outcome is expected, since Transformers lack some of the inductive biases
 inherent to CNNs, such as translation equivariance and locality, and therefore do not generalize
@@ -210,6 +222,7 @@ computing, and hyperparameters tuning~\cite*{chen2021vision}.The importance of t
 choice is also seen in the presented experiments of SegFromer with Adam and AdamW optimizers.
 Adam and AdamW were selected according to literature reporting that these adaptive gradient
 methods do not underperform momentum or gradient descent optimisers~\cite{choi2019empirical}.
+AdamW improves regularization compared to Adam optimizer by decoupling the weight decay from the gradient-based update~\cite{loshchilov2017decoupled}.
 The evidence that AdamW is a better choice, agrees with the prior works that use AdamW to
 optimize visual transformer models from random initialization~\cite{xiao2021early}. Generally using AdamW
 to optimize deep transformers is extensively practiced in the community~\cite{anonymous2023applying}.
@@ -219,16 +232,20 @@ based models, which could involve the previously noticed pre-training on ImageNe
 the number of argumentations, or applying different optimizers.
 Hence, while the SegFormer AdamW model remains promising, due to overall better performance and
 runtime, this thesis will use the DeepLabv3+ model for further inferences and analysis.
-For model inference, the model with the best pixel-wise Dice score on the validation set was used.
+For model inference, the model with the best pixel-wise Dice score of all three regions on the validation set was used.
 Patches of size 256$×\times$256 were extracted from the tissue region at 20$\times$ magnification
 with a stride of 184 (for faster runtime). The whitespace was extracted by using thresholding and
 inference of non-background pixels was then performed.
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{figures/tissue/deeplabv3+_dice_tc_TC_S01_P000159_C0001_B108_[18565,_51594,_19649,_52655]_check.png}
-    \includegraphics[width=\linewidth]{figures/tissue/segformer_dice_tc_TC_S01_P000159_C0001_B108_[18565,_51594,_19649,_52655]_check.png}
-    \includegraphics[width=\linewidth]{figures/tissue/segformer,_adamw_dice_tc_TC_S01_P000159_C0001_B108_[18565,_51594,_19649,_52655]_check.png}
-    \caption{Example of rich false positive segmentation RUMC ROI that contributes to the cases of close zero dice scores.}
+    \includegraphics[width=\linewidth]{figures/tissue/deeplabv3+_dice_tc_TC_S01_P000159_C0001_B108_[18565,_51594,_19649,_52655]_nice.png}
+    \includegraphics[width=\linewidth]{figures/tissue/segformer_dice_tc_TC_S01_P000159_C0001_B108_[18565,_51594,_19649,_52655]_nice.png}
+    \includegraphics[width=\linewidth]{figures/tissue/segformer,_adamw_dice_tc_TC_S01_P000159_C0001_B108_[18565,_51594,_19649,_52655]_nice.png}
+    \caption{TC\_S01\_P000159\_C0001\_B108\_[18565, 51594, 19649, 52655] ROI.
+    Example of rich false positive segmentation RUMC ROI
+    that contributes to the cases of close zero Dice scores. Each row includes H\&E image, ground truth, and prediction with
+    one of three developed models. This example showcases the tiling artifacts that are present across all models.
+    Resulted Dice scores: DeepLabv3+ 0.132, SegFormer 0.009 and SegFormer, AdamW 0.093.}
     \label{fig:TC_S01_P000159}
 \end{figure}
 
@@ -241,51 +258,63 @@ inference of non-background pixels was then performed.
 
 \includegraphics[width=.5\linewidth]{figures/tissue/segformer,_adamw_prec_roi_wsirois.png}
 \includegraphics[width=.5\linewidth]{figures/tissue/segformer,_adamw_recall_roi_wsirois.png}
-\caption{Boxplots of pixel wise calculated precision and recall across three datastes (TCGA-BRCA, RUMC, JB) and three segmentation labels.}
+\caption{Boxplots of pixel wise calculated precision and recall across three datastes (TCGA-BRCA, RUMC, JB) and three segmentation labels.
+Columns: precision, recall. Rows: DeepLabv3+, SegFormer, and SegFormer, AdamW. 
+Boxplot color helps to distinguish the values between different datasets and each dataset is
+represented by three boxes with the scores for each of the class labels - rest, tumor, and stroma. }
 \label{fig:tissue_pr_r_boxplots}
 \end{figure}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{figures/tissue/deeplabv3+_dice_tcga_TCGA-GM-A2DF-01Z-00-DX1CD0BE6D7-2DB3-4193-84CC-F9BE7BF18CC2_[25322,_21890,_27778,_24293]_check.png}
-    \includegraphics[width=\linewidth]{figures/tissue/segformer_dice_tcga_TCGA-GM-A2DF-01Z-00-DX1CD0BE6D7-2DB3-4193-84CC-F9BE7BF18CC2_[25322,_21890,_27778,_24293]_check.png}
-    \includegraphics[width=\linewidth]{figures/tissue/segformer,_adamw_dice_tcga_TCGA-GM-A2DF-01Z-00-DX1CD0BE6D7-2DB3-4193-84CC-F9BE7BF18CC2_[25322,_21890,_27778,_24293]_check.png}
+    \includegraphics[width=\linewidth]{figures/tissue/deeplabv3+_dice_tcga_TCGA-GM-A2DF-01Z-00-DX1CD0BE6D7-2DB3-4193-84CC-F9BE7BF18CC2_[25322,_21890,_27778,_24293]_nice.png}
+    \includegraphics[width=\linewidth]{figures/tissue/segformer_dice_tcga_TCGA-GM-A2DF-01Z-00-DX1CD0BE6D7-2DB3-4193-84CC-F9BE7BF18CC2_[25322,_21890,_27778,_24293]_nice.png}
+    \includegraphics[width=\linewidth]{figures/tissue/segformer,_adamw_dice_tcga_TCGA-GM-A2DF-01Z-00-DX1CD0BE6D7-2DB3-4193-84CC-F9BE7BF18CC2_[25322,_21890,_27778,_24293]_nice.png}
     
-    \caption{Example of a slightly devalued dice score due to some annotation inaccuracies.}
+    \caption{TCGA-GM-A2DF-01Z-00-DX1.CD0BE6D7-2DB3-4193-84CC-F9BE7BF18CC2\_[25322, 21890, 27778, 24293] ROI.
+    Example of a slightly devalued Dice score due to some annotation inaccuracies. 
+    Each row includes H\&E image, ground truth, and prediction with one of three developed models. This example showcases the tilted ground truth. The whitespace was annotated as class zero in the original mask image.
+    Resulted Dice scores: DeepLabv3+ 0.684, SegFormer 0.68, and SegFormer, AdamW 0.664.}
     \label{fig:TCGA-GM-A2DF}
 \end{figure}
     
 
 \begin{figure}[H]
-\includegraphics[width=\linewidth]{figures/tissue/deeplabv3+_dice_s_250B_[16272,_25312,_17441,_26473]_check.png}
-\includegraphics[width=\linewidth]{figures/tissue/segformer_dice_s_250B_[16272,_25312,_17441,_26473]_check.png}
-\includegraphics[width=\linewidth]{figures/tissue/segformer,_adamw_dice_s_250B_[16272,_25312,_17441,_26473]_check.png}
+\includegraphics[width=\linewidth]{figures/tissue/deeplabv3+_dice_s_250B_[16272,_25312,_17441,_26473]_nice.png}
+\includegraphics[width=\linewidth]{figures/tissue/segformer_dice_s_250B_[16272,_25312,_17441,_26473]_nice.png}
+\includegraphics[width=\linewidth]{figures/tissue/segformer,_adamw_dice_s_250B_[16272,_25312,_17441,_26473]_nice.png}
 
-\caption{JB S\_250B ROI segmentation result.}
+\caption{250B\_[16272, 25312, 17441, 26473] JB ROI. 
+Each row includes H\&E image, ground truth, and prediction with one of three developed models.
+Resulted Dice scores: DeepLabv3+ 0.937, SegFormer 0.917, and SegFormer, AdamW 0.936.}
 \label{fig:s_250B_1}
 \end{figure}
 
 \begin{figure}[H]
-\includegraphics[width=\linewidth]{figures/tissue/deeplabv3+_dice_s_250B_[29477,_26912,_30725,_28086]_check.png}
-\includegraphics[width=\linewidth]{figures/tissue/segformer_dice_s_250B_[29477,_26912,_30725,_28086]_check.png}
-\includegraphics[width=\linewidth]{figures/tissue/segformer,_adamw_dice_s_250B_[29477,_26912,_30725,_28086]_check.png}
+\includegraphics[width=\linewidth]{figures/tissue/deeplabv3+_dice_s_250B_[29477,_26912,_30725,_28086]_nice.png}
+\includegraphics[width=\linewidth]{figures/tissue/segformer_dice_s_250B_[29477,_26912,_30725,_28086]_nice.png}
+\includegraphics[width=\linewidth]{figures/tissue/segformer,_adamw_dice_s_250B_[29477,_26912,_30725,_28086]_nice.png}
 
-\caption{JB S\_250B ROI segmentation result.}
+\caption{250B\_[29477, 26912, 30725, 28086] JB ROI. 
+Each row includes H\&E image, ground truth, and prediction with one of three developed models.
+Resulted Dice scores: DeepLabv3+ 0.971, SegFormer 0.953, and SegFormer, AdamW 0.975.}
 \label{fig:s_250B_2}
 \end{figure}
 
 \begin{figure}[H]
-\includegraphics[width=\linewidth]{figures/tissue/deeplabv3+_dice_tcga_TCGA-EW-A1P4-01Z-00-DX13E9AE553-83D4-4B09-AB7F-D096BCE3BC4D_[8630,_17717,_11173,_19809]_check.png}
-\includegraphics[width=\linewidth]{figures/tissue/segformer_dice_tcga_TCGA-EW-A1P4-01Z-00-DX13E9AE553-83D4-4B09-AB7F-D096BCE3BC4D_[8630,_17717,_11173,_19809]_check.png}
-\includegraphics[width=\linewidth]{figures/tissue/segformer,_adamw_dice_tcga_TCGA-EW-A1P4-01Z-00-DX13E9AE553-83D4-4B09-AB7F-D096BCE3BC4D_[8630,_17717,_11173,_19809]_check.png}
+\includegraphics[width=\linewidth]{figures/tissue/deeplabv3+_dice_tcga_TCGA-EW-A1P4-01Z-00-DX13E9AE553-83D4-4B09-AB7F-D096BCE3BC4D_[8630,_17717,_11173,_19809]_nice.png}
+\includegraphics[width=\linewidth]{figures/tissue/segformer_dice_tcga_TCGA-EW-A1P4-01Z-00-DX13E9AE553-83D4-4B09-AB7F-D096BCE3BC4D_[8630,_17717,_11173,_19809]_nice.png}
+\includegraphics[width=\linewidth]{figures/tissue/segformer,_adamw_dice_tcga_TCGA-EW-A1P4-01Z-00-DX13E9AE553-83D4-4B09-AB7F-D096BCE3BC4D_[8630,_17717,_11173,_19809]_nice.png}
 
-\caption{TCGA-EW-A1P4-01Z-00-DX1 ROI segmentation result.}
+\caption{TCGA-EW-A1P4-01Z-00-DX1.3E9AE553-83D4-4B09-AB7F-D096BCE3BC4D\_[8630, 17717, 11173, 19809] ROI. 
+Each row includes H\&E image, ground truth, and prediction with one of three developed models.
+Resulted Dice scores: DeepLabv3+ 0.88, SegFormer 0.842, and SegFormer, AdamW 0.917.}
 \label{fig:TCGA-EW-A1P4}
 \end{figure}
 
 
 
-\section{TILs Segmentation}
-TILs segmentation task aimed to segment the RGB input of H\&E stained image at 20$\times$ magnification
+\section{TIL Segmentation}
+TIL segmentation task aimed to segment the RGB input of H\&E stained image at 20$\times$ magnification
 (resolution of 0.5 micron-per-pixel) into two prediction maps: TILs and rest.
 The split of the patients was used similarly to the previously described in
 Tabel~\ref*{tab:patients_sep}. Even though the same patients are present in
@@ -294,7 +323,7 @@ study which results in a different ROI and patch statistics shown in
 Table~\ref*{tab:patch_sep_tils}. The patches were created using a sliding
 window approach with 128$\times$128 sized patches
 and stride equals 100. The ROIs that were smaller than 128$\times$128
-were padded. The additional rotation augmentation was applied,
+were padded with 255. The additional rotation augmentation was applied,
 by rotating each patch 5 times at 9 degrees each.
 The column "Number of patches that include rest" in Table~\ref*{tab:patch_sep_tils}
 seems excessive, but was still added
@@ -319,8 +348,9 @@ completely annotated as rest or include occasional TILs masks.
         \hline
         & 195 & 1\,879 & 131\,864 &  &  &  & \\
     \end{tabular}
-    \caption{\label{tab:patch_sep_tils} Overview of patches that were split into train, validation,
-    and test sets for TILs segmentation. The percentages indicate the fraction of a specific conditioned
+    \caption{\label{tab:patch_sep_tils} Overview of patches that were partitioned into train, validation,
+    and test sets for TILs segmentation following the patient split presented in Table~\ref*{tab:patients_sep}.
+    The percentages indicate the fraction of a specific conditioned
     group of patches to the number of all patches in the "patches" column.}
 \end{table}
 
@@ -331,7 +361,7 @@ sizes of 128$\times$128. In the model overview in Table~\ref*{tab:tils_perform}
 the number of parameters and
 iterations remain the same. FLOPs values are dependent on input shape, therefore
 it was expected to drop since the input is smaller.
-It is aslo noticed that for TILs segmentation the runtime between all three models
+It is also noticed that for TILs segmentation the runtime between all three models
 becomes comparable in contrast to tissue segmentation (Table~\ref*{tab:tissue_perform}).
 
 \begin{table}[h!]
@@ -342,11 +372,12 @@ becomes comparable in contrast to tissue segmentation (Table~\ref*{tab:tissue_pe
         \hline
         DeepLabv3+ & 11.04 & 43.58 M & 160 K & 2d 8h 36m & 0.49 & 0.58 & 0.43\\
         SegFormer & 3.24 & 81.97 M & 160 K  & 2d 11h 36m & 0.62 & 0.62 & 0.33\\
-        SegFormer, & \multirow{2}{*}{3.24} & \multirow{2}{*}{81.97 M} & \multirow{2}{*}{160 K} & \multirow{2}{*}{2d 15h 19m} & \multirow{2}{*}{\textbf{0.66}} & \multirow{2}{*}{0.64} & \multirow{2}{*}{0.69}\\
+        SegFormer, & \multirow{2}{*}{3.24} & \multirow{2}{*}{81.97 M} & \multirow{2}{*}{160 K} & \multirow{2}{*}{2d 15h 19m} & \multirow{2}{*}{0.66} & \multirow{2}{*}{0.64} & \multirow{2}{*}{0.69}\\
         AdamW & & & & & & & & \\
         \hline
     \end{tabular}
-\caption{\label{tab:tils_perform} Overview of the trained TILs segmentation models. The runtime is given for a training on one GPU NVIDIA A100 SXM4.}
+\caption{\label{tab:tils_perform} Overview of the trained TILs segmentation models. The runtime is given for training on one GPU NVIDIA A100 SXM4.
+Doubled number of model parameters, as in tissue segmentation task (Table~\ref*{tab:tissue_perform}), but comparable training run time and significantly better F1 score of SegFormer model with AdamW optimizer.}
 \end{table}
 
 For proper evaluation the predicted TILs segmentation needed to be reduced to TILs
@@ -382,12 +413,15 @@ model with AdamW optimizer strongly outperforms DeepLabv3+ and simple SegFormer.
 Furthermore, while distinguishing the F1 scores between ROIs originating from different medical
 centers in Figure~\ref*{fig:tils_dice_boxplots}, SegFormer AdamW results show
 significantly better results in all subgroups.
-\begin{figure}[H]
+\begin{figure}[h!]
     \includegraphics[width=.32\linewidth]{figures/tils/deeplabv3+_F1_roi_adj.png}
     \includegraphics[width=.32\linewidth]{figures/tils/segformer_F1_roi_adj.png}
     \includegraphics[width=.32\linewidth]{figures/tils/segformer,_adamw_F1_roi_adj.png}
-    \caption{Boxplots of dice score across three datastes (TCGA-BRCA, RUMC, JB) with
-    maximum allowed distance between ground truth and prediction equals 10 pixels (5 \textmu m).}
+    \caption{Boxplots of F1 score across three datastes (TCGA-BRCA, RUMC, JB) with
+    maximum allowed distance between ground truth and prediction equals 10 pixels (5 \textmu m).
+    Each boxplot represents the result of one of three models: DeepLabv3+, SegFormer,
+    SegFormer with AdamW optimizer. Within each boxplot, F1 scores per ROI are also
+    distinguished between different source datasets.}
     \label{fig:tils_dice_boxplots}
 \end{figure}
 Interestingly the precision boxplots
@@ -403,7 +437,7 @@ falsely annotated and correct TILs can be compared. Even on the level of posteri
 more regions, especially closer to the border of the image. The grids in Figure~\ref*{fig:TCGA-D8-A142_tils}
 were added for readers' convenience and are not artifacts. 
 
-\begin{figure}[H]
+\begin{figure}[h!]
     \includegraphics[width=.32\linewidth]{figures/tils/deeplabv3+_precision_roi_adj.png}
     \includegraphics[width=.32\linewidth]{figures/tils/segformer_precision_roi_adj.png}
     \includegraphics[width=.32\linewidth]{figures/tils/segformer,_adamw_precision_roi_adj.png}
@@ -411,7 +445,9 @@ were added for readers' convenience and are not artifacts.
     \includegraphics[width=.32\linewidth]{figures/tils/segformer_recall_roi_adj.png}
     \includegraphics[width=.32\linewidth]{figures/tils/segformer,_adamw_recall_roi_adj.png}
     \caption{Boxplots of precision and recall across three datastes (TCGA-BRCA, RUMC, JB) with
-    maximum allowed distance between ground truth and prediction equals 10 pixels (5 \textmu m).}
+    maximum allowed distance between ground truth and prediction equals 10 pixels (5 \textmu m).
+    Rows: precision, recall. Columns: DeepLabv3+, SegFormer, and SegFormer, AdamW. Within each boxplot, F1 scores per ROI are also
+    distinguished between different source datasets.}
     \label{fig:tils_pr_r_boxplots}
 \end{figure}
 
@@ -423,8 +459,7 @@ The FROC ratio for three developed models was calculated on 173 test ROIs
 and revealed significant differences between the trained model in the thesis.
 The results can be viewed in Table~\ref{tab:tils_compare}.
 Even though the values are not directly comparable, since they are based on different
-data sets, SegFormer, AdamW yield a FROC value close to 0.7, which lies in a higher
-range compared to TiGER results.
+data sets, SegFormer, AdamW yield a FROC value close to 0.7, outperforming the TiGER results.
 Both the experimental and final TiGER best models belong to the Bio-totem team.
 They based the model on a modified SFCN-OPI network~\cite{zhou2018sfcn} which
 is a sibling fully convolutional network that performs nuclei detection and
@@ -444,7 +479,7 @@ and fed into the false positive suppressing branch for the TILs detection task.
         \hline
     \end{tabular}
 \caption{\label{tab:tils_compare} Free Response Operating Characteristic (FROC)
-analysis for TILs detection. The TiGER challenge leaderboard results versus three
+analysis for TILs detection. The TiGER challenge leaderboard results~\cite{home} versus three
 models developed in this work. The results were obtained from different data.}
 \end{table}
 
@@ -454,7 +489,7 @@ But the statements that were done in the previous chapter~\ref{res_tissue_segm}
 regarding tissue segmentation models comparison do not apply here, since SegFormer with AdamW
 optimizer manages to outperform DeepLabv3+ even though no pre-training
 or hyperparameter tuning was used. 
-As Naseer, M et al.~\cite{naseer2021intriguing} discovered, when presented
+As Naseer, M \textit{et al.}~\cite{naseer2021intriguing} discovered, when presented
 with the texture and shape of the same object, in this case typically dark,
 round to ovoid TIL, CNN models often make decisions based on texture. In contrast,
 transformers perform better than CNNs on shape recognition. This indicates the
@@ -462,29 +497,40 @@ robustness of transformers to deal with significant distribution shifts and migh
 be the reason for superior performance, due to for instance better recognition of
 TILs shapes in non-homogeneously stained slides. Taking into account all
 discussions above and the overall better performance, the SegFromer AdamW was
-considered the best model, and the model with the highest pixel-wise dice score
+considered the best model, and the model with the highest pixel-wise Dice score
 on the validation set was taken to the next step. 
-For model inference, the model with the best pixel-wise Dice score on the validation set was used.
+For model inference, it was planned to use the model with the best pixel-wise Dice score on the validation set.
+But due to model conversion problems (.pth to .pt) that were discovered late by observing rather bad performance after conversion, DeepLabv3+ was used instead.
 Patches of size 128$×\times$128 were extracted from the tissue region at 20$\times$ magnification
 with a stride of 100. The whitespace was extracted by using thresholding and
-inference of non-background pixels was then performed.
+inference of non-background pixels was then performed. 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth]{figures/tils/TCGA-D8-A142-01Z-00-DX12.png}
-    \caption{TCGA-D8-A142-01Z-00-DX12 TILs prediction with DeepLabv3+, SegFormer and
-    SegFormer, AdamW. With 0.713, 0.804 and 0.812 F1 scores accordingly.}
+    \includegraphics[width=0.276\textwidth, valign=b]{figures/tils/TCGA-D8-A142-01Z-00-DX12_F1_deeplabv3+_adj.png}
+    \includegraphics[width=0.276\textwidth, valign=b]{figures/tils/TCGA-D8-A142-01Z-00-DX12_F1_segformer_adj.png}
+    \includegraphics[width=0.276\textwidth, valign=b]{figures/tils/TCGA-D8-A142-01Z-00-DX12_F1_segformer,_adamw_adj.png}
+    \caption{Visualisation of TCGA-D8-A142-01Z-00-DX12 ROI TILs detection.
+    Columns: DeepLabv3+, SegFormer, and SegFormer, AdamW.
+    Rows: H\&E image, prediction posterior, segmentation mask after applying non-maximum suppression, ground truth, and prediction overlayed with the ground truth. All grids were added for easier visual navigation.
+    Resulted F1 score: DeepLabv3+ 0.713, SegFormer 0.804, and SegFormer, AdamW 0.812.}
     \label{fig:TCGA-D8-A142_tils}
 \end{figure}
 
 \section{Survival Analysis}
-\todo[inline]{The following results are generated with DeepLabv3+ TILs detection. Missing heterogeneity features. Waiting for the results to generate. If everything goes wrong, those are the final results. Hopefully not.}
 The patients from TCGA-BRCA clinical data with negative or not complete event times were removed. The remaining
-1005 patients were used for survival analysis.
-1133 segmented diagnostic slides were saved at 5$\times$ magnification. Each slide has determined regions of tumor, stroma,
+1015 patients were used for survival analysis.
+1133 segmented diagnostic slides were saved at 5$\times$ magnification (resolution of 2 micron-per-pixel). Each slide has determined regions of tumor, stroma,
 and rest, as well as a list of all selected TILs. Based on this information four groups of TILs
 densities were calculated: in stroma, stroma border, tumor associated stroma border,
 and tumor border. The description of the regions is visualized in Figure~\ref*{fig:borders}.
+Additionally, to measure the heterogeneity of TIL density in the stroma,
+the densities of separate not connected stroma components, as two stroma regions depicted
+in Figure~\ref*{fig:borders} were calculated. The resulting collection of stroma densities
+for every slide was transformed into a value of its mean, standard deviation, and variance.
+The idea behind it was not to only measure the densities but also to capture TIL distribution
+within a slide.
+The small stroma components less than 100 or 300 pixels, were filtered out.
 The features for patients with multiple slides were mean aggregated.
 \begin{wrapfigure}{r}{0.45\textwidth}
     \centering
@@ -503,18 +549,19 @@ It resulted in 20 features
 that were first evaluated on correlation as depicted on a heatmap Figure~\ref{fig:heatmaps_tils}.
 There are three coherent groups visible in Figure~\ref{fig:heatmaps_tils}.
 There is a clear link between different groups and the baseline, such as a high correlation
-of TILs density in stroma with TILs densities in stroma borders, which increases the bigger
-the border gets. And on a contrary, a lower correlation of baseline with TILs density in tumor borders.
+of TIL density in stroma with TIL densities in stroma borders, which increases the bigger
+the border gets. And on a contrary, a lower correlation of baseline with TIL density in tumor borders.
 The values of pair-wise Pearson correlations in each group were compared and the columns with
 a correlation higher than 90\% were removed. If all columns in a group displayed a
 correlation above 90\%, the most similar column of a group was kept, which should
 represent a group best. The resulting features and their correlations can be seen on the right heatmap
 in Figure~\ref{fig:heatmaps_tils}.
 \begin{figure}[h!]
-\includegraphics[width=.5\linewidth]{figures/survival/heatmap_tils.png}
-\includegraphics[width=.5\linewidth]{figures/survival/heatmap_tils_min.png}
-\caption{Heatmaps representing pair-wise Pearson correlation between TILs densities in different areas.
-Full version and condensed to group representatives.}
+\centering
+\includegraphics[width=0.7\linewidth]{figures/survival/heatmap_tils.png}
+\includegraphics[width=.6\linewidth]{figures/survival/heatmap_tils_min.png}
+\caption{Heatmaps representing pair-wise Pearson correlation between TIL density features in different areas: stroma border, tumor associated stroma border, tumor border, complete stroma, and its heterogeneity.
+The smaller heatmap at the bottom includes only group representatives.}
 \label{fig:heatmaps_tils}
 \end{figure}
 For further comparison, features were evaluated at different prevalences.
@@ -524,8 +571,8 @@ according groups and the Kaplan Meier method was used on both of them. The Log-R
 was applied to measure whether the two resulting event series are statistically different.
 The resulting p-values are visualized in Figure~\ref{fig:pvalues_tils}, both as a line plot
 per each prevalence, as well as a boxplot. In the boxplot, it can be seen that the median
-p-value of the density in 100 \textmu m tumor associated stroma and in 10 \textmu m tumor
-border lay higher than the other features. Those densities are also found more frequently
+p-value of the density in 10 \textmu m tumor and heterogeneity
+lay higher than the other features. Those densities are also found more frequently
 over the statistical significance line in the line plot. Those features were decided to exclude.
 And for visibility, the remaining features were plotted again separately in
 Figure~\ref{fig:pvalues_tils_selected} with an additional boxplot depicting differences in median
@@ -536,23 +583,21 @@ all prevalences. Additionally, according to the Median survival time boxplot,
 the median value of TILs densities in stroma border is 1.5 years higher.
 
 For fitting the data into a Cox model, the TILs densities were divided by 100.
-The result revealed 0.58 concordance, 0.01 p-value, and 0.94 hazard ratio.
+The result revealed 0.577 concordance, 0.007 p-value, and 0.94 hazard ratio for baseline feature
+of TIL density in overall stroma.
 That means that the coefficient is negative (-0.06) which supports the assumption
 that the high level of TILs plays a role in longer survival probability.
-For the TILs density in stroma border, the result is identical: 0.58 concordance,
-0.01 p-value, and 0.94 hazard ratio. And TILs density in tumor associated stroma
-reaches 0.59 concordance, 0.01 p-value, and 0.88 hazard ratio.
+For the TILs density in stroma border, the result is identical: 0.579 concordance,
+0.004 p-value, and 0.94 hazard ratio. And TILs density in tumor associated stroma
+reaches 0.588 concordance, 0.006 p-value, and 0.88 hazard ratio.
 Regression models generally give more reliable results with normally-distributed variables.
-Since the TILs densities are not normally-distributed (see Figure~\ref{fig:histo_tils}),
+Since the TILs densities are not normally-distributed (c.f. Figure~\ref{fig:histo_tils}),
 the experiments were repeated with log features. The TILs densities in stroma scored
-0.58 concordance, p-value 0.00064 and 0.8 hazard ratio, for TILs desnities in stroma border - 0.58
-concordance, p-value 0.00034 and 0.79 hazard ratio, and TILs densities in tumor
-associated stroma - concordance of 0.59, p-value 0.00019 and 0.78 hazard ratio.
+0.577 concordance, p-value 0.00064 and 0.8 hazard ratio, for TILs desnities in stroma border - 0.579
+concordance, p-value 0.00032 and 0.79 hazard ratio, and TILs densities in tumor
+associated stroma - concordance of 0.588, p-value 0.00018 and 0.78 hazard ratio.
 It was expected for concordance to stay indifferent since it was not influenced by
-taking the log of all values. Whereas p-values and hazard ratios improved drastically.
-It is harder to explain the signal presence and meaning of log-ed features,
-hence we will concentrate on raw values.
-
+taking the log of all values.
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.4\linewidth]{figures/survival/histo_tils.png}
@@ -560,26 +605,38 @@ hence we will concentrate on raw values.
 \caption{Histograms of baseline TILs density in stroma features versus its log distribution.}
 \label{fig:histo_tils}
 \end{figure}
-    
-
-The Kaplan Meier curves in Figure~\ref{fig:km} at most often viewed prevalences of
-0.33, 0.66, and the median matched the cases when TILs density in tumor associated
+The Kaplan Meier curves in Figure~\ref{fig:km} at low, median and high prevalences
+(0.33, 0.5 and 0.66), matched the cases when TILs density in tumor associated
 stroma features stratified patients better in lower range and median.
-Whereas at 0.66 the TILs density in stroma border scores a slightly more significant p-value.
-The observation that a border of stroma or tumor associated stroma features perform better
-than the stroma itself may come from the observed behavior that the tissue segmentation model
-leans to confuse rest with stroma (Figure~\ref{fig:tissue_confusion}).
-Hence, taking into consideration only regions close to tumorous regions, that are better
-segmented, acts as a filtering of falsely annotated regions that therefore leads to a higher
+Whereas at 0.66 the TILs density in stroma border scores a more significant p-value.
+The observation that a border of tumor associated stroma features in some prevalences perform better
+than the stroma border may come from the observed behavior that the tissue segmentation model
+leans to confuse rest with stroma (Figure~\ref{fig:tissue_confusion}). 
+Hence, theoretically taking into consideration only regions close to tumorous regions, that are better
+segmented, includes falsely missed stroma regions that therefore lead to a higher
 significance of a feature.
 
-\todo[inline]{When the final results are done, here same analysis of Her2+, TNBC subsets.}
+To evaluate TILs scores TiGER challenge was assessed in comparison to a baseline Cox regression model~\cite{home}.
+The TiGER baseline survival model was based on clinical variables that included age, morphology subtype, grade, molecular subtype, stage, surgery, and adjuvant therapy. The concordance of a baseline model reached 0.63. The submitted TIL scores were evaluated on the impact they had on the baseline model as an additional feature. The best result on the experimental set is 0.7194~\cite{shephard2022tiager}.
+The TILs score was calculated by dividing the total predicted TILs area by the stromal area and multiplying by 100.
+The score was further constrained to be an integer between 0 and 100.
+On the final dataset, the concordance barely improved and reached 0.6388. According to the final webinar, the winning team detected lymphocytes cells in the peritumoral stroma area and averaged it over all patches with an additional step of averaging with an accumulated ratio of detected lymphocytes cells in peritumoral stroma area not averaged over all patches.
+
+To define a similar baseline model for TCGA-BRCA data, the following features were taken: AJCC staging criteria identifying the extent of cancer (\verb+ajcc_pathologic_stage+), gender, and age at which breast cancer was first diagnosed. The Cox model on these features showed an outstanding concordance of 0.77285. The addition of TIL density of stroma improved the value to 0.77795.
+Whereas the stroma border features had a bit less of an impact: stroma border with 0.77673 and tumor associated stroma border with 0.77719.
+
+Lastly, 261 patients that were diagnosed with either Her2+ or TNBC breast cancer were extracted, if the respective diagnostic images were provided. As depicted in Figure~\ref*{fig:pvalues_tnbc_her2} the Log-Rank test was applied to measure statistical differences in range prevalences with three features: stroma as a baseline, TIL density in 100\textmu m tumor associated stroma border and TILs density in 300 \textmu m stroma border.
+In this case, baseline features are performing considerably better at the median split. While both border features have a rather similar course in the line plot, the median p-value shown in the boxplot below depicts the superiority of tumor associated stroma over stroma border, and 
+even some improvement against the baseline. The Cox survival model for TIL density in stroma reports concordance of 0.59, p-value 0.033, and 0.92 hazard ratio. In contrast to the complete dataset, the stroma border shows comparatively worse results of 0.58 concordance, 0.04 p-value, and 0.93 hazard ratio.
+The tumor associated stroma border scores a slightly better concordance of 0.593, while the p-value reports a 0.08 and 0.89 hazard ratio.
 
 \begin{figure}[h!]
 \includegraphics[width=\linewidth]{figures/survival/pvalue_prevalence_all.png}
 \includegraphics[width=0.764\linewidth]{figures/survival/pvalue_boxplot_all.png}
 \caption{Log-Rank p-values distribution by different patient separations.
-The dotted line in the line plot represents the significance level of 0.05 ($\log_{10} 0.05$)}
+Prevalance range between 0.2 and 0.9 for both plots.
+The TIL density in stroma (blue) was considered a baseline feature.
+The dotted line in the line plot represents the significance level of 0.05 ($\log_{10} 0.05$).}
 \label{fig:pvalues_tils}
 \end{figure}
 
@@ -588,21 +645,31 @@ The dotted line in the line plot represents the significance level of 0.05 ($\lo
 \includegraphics[width=0.5\linewidth]{figures/survival/pvalue_boxplot_selected.png}
 \includegraphics[width=0.5\linewidth]{figures/survival/surv_time_boxplot_selected.png}
 \caption{Log-Rank p-values distribution by different patient separations with an additional boxplot
-with median survival time differences. The dotted line in the line plot represents the significance level of 0.05 ($\log_{10} 0.05$)}
+with median survival time differences.
+Prevalance range between 0.2 and 0.9 for both Log-Rank p-values plots.
+The TIL density in stroma (blue) was considered a baseline feature.
+The dotted line in the line plot represents the significance level of 0.05 ($\log_{10} 0.05$).
+}
 \label{fig:pvalues_tils_selected}
 \end{figure}
 
 \begin{figure}[h!]
-\includegraphics[width=\linewidth]{figures/survival/km_33.png}
-\includegraphics[width=\linewidth]{figures/survival/km_50.png}
-\includegraphics[width=\linewidth]{figures/survival/km_66.png}
-\caption{Kaplan Meier curves. Columns correspond to denisty features in: stroma, 300 \textmu m stroma border,
-100 \textmu m tumor associated stroma border. Rows coorespond to following prevalences: 0.33, 0.5, and 0.66.}
+\includegraphics[width=1.02\linewidth]{figures/survival/km_33.png}
+\includegraphics[width=1.02\linewidth]{figures/survival/km_50.png}
+\includegraphics[width=1.02\linewidth]{figures/survival/km_66.png}
+\caption{Kaplan Meier curves.
+Columns correspond to denisty features in: stroma, 300 \textmu m stroma border, and
+100 \textmu m tumor associated stroma border. Rows refer to following prevalences: 0.33, 0.5, and 0.66.}
 \label{fig:km}
 \end{figure}
 
-%\begin{figure}[h!]
-%\includegraphics[width=0.5\linewidth]{figures/survival/boxplot_sep.png}
-%\caption{Value separation}
-%\label{fig:v_sep}
-%\end{figure}
+\begin{figure}[h!]
+    \includegraphics[width=1.02\linewidth]{figures/survival/pvalue_prevalence_all_tnbc.png}
+    \includegraphics[width=0.6\linewidth]{figures/survival/pvalue_boxplot_all_tnbc.png}
+    \caption{Her2+ and TNBC patient cohort. Log-Rank p-values distribution by different patient separations.
+    Prevalance range between 0.2 and 0.9 for both plots.
+    The TIL density in stroma (blue) was considered a baseline feature.
+    The dotted line in the line plot represents the significance level of 0.05 ($\log_{10} 0.05$).}
+    \label{fig:pvalues_tnbc_her2}
+    \end{figure}
+    
